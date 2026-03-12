@@ -1,0 +1,24 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local config (if any)
+config.local.js
+
+# Build outputs (if any in future)
+dist/
+build/
+
+# Dependencies (if using npm in future)
+node_modules/

@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修心 - 安住当下</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f0eb 0%, #e8e4dc 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #5a4a42;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            color: #8b7d72;
+            font-weight: 300;
+        }
+
+        /* 今日加持语卡片 */
+        .blessing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .blessing-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #4a4a4a;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .blessing-source {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        /* 功能卡片 */
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #5a4a42;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        /* 呼吸练习界面 */
+        .breath-container {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .breath-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4c5b9 0%, #b8a99d 100%);
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            transition: transform 4s ease-in-out;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .breath-circle.expand {
+            transform: scale(1.3);
+        }
+
+        .breath-circle.contract {
+            transform: scale(1);
+        }
+
+        .breath-instruction {
+            font-size: 1.5rem;
+            color: #5a4a42;
+            margin-bottom: 20px;
+        }
+
+        .breath-count {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* 计时器界面 */
+        .timer-container {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 300;
+            color: #5a4a42;
+            margin: 40px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-method {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b7355 0%, #6b5a4a 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #e8e4dc;
+            color: #5a4a42;
+        }
+
+        .btn-secondary:hover {
+            background: #d4cfc7;
+        }
+
+        .btn-group {
+            margin: 20px 0;
+        }
+
+        /* 时长选择 */
+        .duration-selector {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .duration-btn {
+            padding: 10px 20px;
+            border: 2px solid #d4c5b9;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .duration-btn.active {
+            background: #8b7355;
+            color: white;
+            border-color: #8b7355;
+        }
+
+        /* 法门选择 */
+        .method-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .method-card {
+            padding: 16px;
+            border: 2px solid #e8e4dc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .method-card:hover {
+            border-color: #8b7355;
+        }
+
+        .method-card.active {
+            background: #8b7355;
+            color: white;
+            border-color: #8b7355;
+        }
+
+        .method-card h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .method-card p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* 统计 */
+        .stats-container {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #8b7355;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 16px;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #5a4a42;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: #f5f0eb;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e8e4dc;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 8px 16px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f5f0eb;
+        }
+
+        .nav-item.active {
+            color: #8b7355;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .nav-item.active .nav-label {
+            color: #8b7355;
+        }
+
+        /* 戒律打卡 */
+        .precept-container {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .precept-list {
+            margin: 20px 0;
+        }
+
+        .precept-item {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .precept-text {
+            flex: 1;
+        }
+
+        .precept-title {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .precept-desc {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .precept-check {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #d4c5b9;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .precept-check.checked {
+            background: #8b7355;
+            border-color: #8b7355;
+            color: white;
+        }
+
+        /* 完成提示 */
+        .completion-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .completion-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 320px;
+            margin: 20px;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 1.5rem;
+            color: #5a4a42;
+            margin-bottom: 12px;
+        }
+
+        .completion-text {
+            color: #888;
+            margin-bottom: 24px;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" id="backBtn" onclick="goBack()">← 返回</button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>修心</h1>
+            <div class="subtitle">安住当下 · 修心修身</div>
+        </div>
+
+        <!-- 首页 -->
+        <div id="homeView" class="fade-in">
+            <!-- 今日加持语 -->
+            <div class="blessing-card">
+                <div class="blessing-text" id="blessingText">
+                    "应无所住，而生其心。"
+                </div>
+                <div class="blessing-source" id="blessingSource">
+                    —— 金刚经
+                </div>
+            </div>
+
+            <!-- 功能入口 -->
+            <div class="feature-card" onclick="showBreath()">
+                <div class="feature-icon">🧘</div>
+                <h3>呼吸练习</h3>
+                <p>数息观，安住当下</p>
+            </div>
+
+            <div class="feature-card" onclick="showTimer()">
+                <div class="feature-icon">🪑</div>
+                <h3>冥想计时</h3>
+                <p>儒释道法门，深度实修</p>
+            </div>
+
+            <div class="feature-card" onclick="showPrecepts()">
+                <div class="feature-icon">📜</div>
+                <h3>戒律打卡</h3>
+                <p>日常践行，落地生根</p>
+            </div>
+
+            <div class="feature-card" onclick="showStats()">
+                <div class="feature-icon">📊</div>
+                <h3>修习统计</h3>
+                <p>看见成长的足迹</p>
+            </div>
+        </div>
+
+        <!-- 呼吸练习 -->
+        <div id="breathView" class="breath-container">
+            <div class="breath-instruction" id="breathInstruction">吸气</div>
+            <div class="breath-circle" id="breathCircle">1</div>
+            <div class="breath-count">第 <span id="currentCount">1</span> 息</div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBreathBtn" onclick="toggleBreath()">开始练习</button>
+                <button class="btn btn-secondary" onclick="goBack()">结束</button>
+            </div>
+        </div>
+
+        <!-- 冥想计时 -->
+        <div id="timerView" class="timer-container">
+            <div class="timer-method" id="timerMethod">数息观</div>
+            <div class="timer-display" id="timerDisplay">10:00</div>
+            
+            <div class="duration-selector">
+                <button class="duration-btn" onclick="setDuration(5)">5 分钟</button>
+                <button class="duration-btn active" onclick="setDuration(10)">10 分钟</button>
+                <button class="duration-btn" onclick="setDuration(20)">20 分钟</button>
+                <button class="duration-btn" onclick="setDuration(30)">30 分钟</button>
+            </div>
+
+            <div class="method-selector">
+                <div class="method-card active" onclick="selectMethod(this, '数息观')">
+                    <h4>数息观</h4>
+                    <p>佛教 · 入门</p>
+                </div>
+                <div class="method-card" onclick="selectMethod(this, '守窍')">
+                    <h4>守窍</h4>
+                    <p>道教 · 初级</p>
+                </div>
+                <div class="method-card" onclick="selectMethod(this, '静坐')">
+                    <h4>静坐</h4>
+                    <p>儒家 · 入门</p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startTimerBtn" onclick="toggleTimer()">开始</button>
+                <button class="btn btn-secondary" onclick="resetTimer()">重置</button>
+                <button class="btn btn-secondary" onclick="goBack()">返回</button>
+            </div>
+        </div>
+
+        <!-- 戒律打卡 -->
+        <div id="preceptView" class="precept-container">
+            <h2 style="text-align: center; color: #5a4a42; margin-bottom: 20px;">今日功课</h2>
+            <div class="precept-list" id="preceptList">
+                <!-- 由 JS 动态生成 -->
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="goBack()">返回</button>
+            </div>
+        </div>
+
+        <!-- 修习统计 -->
+        <div id="statsView" class="stats-container">
+            <h2 style="text-align: center; color: #5a4a42; margin-bottom: 20px;">修习统计</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDays">0</div>
+                    <div class="stat-label">修习天数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalMinutes">0</div>
+                    <div class="stat-label">累计分钟</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streakDays">0</div>
+                    <div class="stat-label">连续天数</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="goBack()">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成提示 -->
+    <div class="completion-modal" id="completionModal">
+        <div class="completion-content">
+            <div class="completion-icon">🙏</div>
+            <div class="completion-title">修习圆满</div>
+            <div class="completion-text">随喜你的精进修习</div>
+            <button class="btn btn-primary" onclick="closeModal()">好的</button>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showHome()">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">首页</span>
+        </div>
+        <div class="nav-item" onclick="showBreath()">
+            <span class="nav-icon">🧘</span>
+            <span class="nav-label">呼吸</span>
+        </div>
+        <div class="nav-item" onclick="showTimer()">
+            <span class="nav-icon">🪑</span>
+            <span class="nav-label">冥想</span>
+        </div>
+        <div class="nav-item" onclick="showStats()">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">统计</span>
+        </div>
+    </div>
+
+    <script>
+        // 加持语库
+        const blessings = [
+            { text: "应无所住，而生其心。", source: "金刚经" },
+            { text: "知人者智，自知者明。", source: "道德经" },
+            { text: "吾日三省吾身。", source: "论语" },
+            { text: "心无挂碍，无有恐怖。", source: "心经" },
+            { text: "上善若水，水善利万物而不争。", source: "道德经" },
+            { text: "学而时习之，不亦说乎？", source: "论语" },
+            { text: "一切有为法，如梦幻泡影。", source: "金刚经" },
+            { text: "致虚极，守静笃。", source: "道德经" },
+            { text: "大学之道，在明明德。", source: "大学" },
+            { text: "色即是空，空即是色。", source: "心经" }
+        ];
+
+        // 戒律列表
+        const precepts = [
+            { title: "不妄语", desc: "今日是否诚实待人？" },
+            { title: "不饮酒", desc: "今日是否保持清醒？（包括不过度沉迷手机）" },
+            { title: "三省吾身", desc: "今日是否反思自己的言行？" },
+            { title: "不杀生", desc: "今日是否善待生命？" },
+            { title: "不偷盗", desc: "今日是否尊重他人财物？" }
+        ];
+
+        // 状态变量
+        let currentView = 'home';
+        let breathCount = 1;
+        let breathInProgress = false;
+        let breathInterval = null;
+        let isInhaling = true;
+
+        let timerDuration = 10 * 60; // 10 分钟
+        let timerRemaining = timerDuration;
+        let timerRunning = false;
+        let timerInterval = null;
+        let currentMethod = '数息观';
+
+        let stats = {
+            totalDays: 0,
+            totalMinutes: 0,
+            streakDays: 0,
+            lastPracticeDate: null
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRandomBlessing();
+            loadPrecepts();
+            loadStats();
+        });
+
+        // 加载随机加持语
+        function loadRandomBlessing() {
+            const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+            document.getElementById('blessingText').textContent = `"${blessing.text}"`;
+            document.getElementById('blessingSource').textContent = `—— ${blessing.source}`;
+        }
+
+        // 加载戒律
+        function loadPrecepts() {
+            const list = document.getElementById('preceptList');
+            list.innerHTML = precepts.map((p, i) => `
+                <div class="precept-item">
+                    <div class="precept-text">
+                        <div class="precept-title">${p.title}</div>
+                        <div class="precept-desc">${p.desc}</div>
+                    </div>
+                    <div class="precept-check" onclick="togglePrecept(this, ${i})">✓</div>
+                </div>
+            `).join('');
+        }
+
+        // 切换戒律状态
+        function togglePrecept(el, index) {
+            el.classList.toggle('checked');
+            saveStats();
+        }
+
+        // 加载统计
+        function loadStats() {
+            const saved = localStorage.getItem('xiuxin_stats');
+            if (saved) {
+                stats = JSON.parse(saved);
+            }
+            updateStatsDisplay();
+        }
+
+        // 保存统计
+        function saveStats() {
+            localStorage.setItem('xiuxin_stats', JSON.stringify(stats));
+        }
+
+        // 更新统计显示
+        function updateStatsDisplay() {
+            document.getElementById('totalDays').textContent = stats.totalDays;
+            document.getElementById('totalMinutes').textContent = stats.totalMinutes;
+            document.getElementById('streakDays').textContent = stats.streakDays;
+        }
+
+        // 视图切换
+        function showView(viewId) {
+            document.getElementById('backBtn').style.display = viewId === 'home' ? 'none' : 'block';
+            document.querySelector('.bottom-nav').style.display = viewId === 'home' ? 'flex' : 'none';
+            
+            ['homeView', 'breathView', 'timerView', 'preceptView', 'statsView'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById(viewId).style.display = 'block';
+            currentView = viewId;
+        }
+
+        function showHome() {
+            showView('homeView');
+        }
+
+        function showBreath() {
+            showView('breathView');
+        }
+
+        function showTimer() {
+            showView('timerView');
+        }
+
+        function showPrecepts() {
+            showView('preceptView');
+        }
+
+        function showStats() {
+            showView('statsView');
+        }
+
+        function goBack() {
+            stopBreath();
+            stopTimer();
+            showHome();
+        }
+
+        // 呼吸练习
+        function toggleBreath() {
+            if (breathInProgress) {
+                stopBreath();
+            } else {
+                startBreath();
+            }
+        }
+
+        function startBreath() {
+            breathInProgress = true;
+            document.getElementById('startBreathBtn').textContent = '暂停';
+            breathCycle();
+            breathInterval = setInterval(breathCycle, 8000); // 8 秒一个循环
+        }
+
+        function stopBreath() {
+            breathInProgress = false;
+            document.getElementById('startBreathBtn').textContent = '继续';
+            clearInterval(breathInterval);
+        }
+
+        function breathCycle() {
+            const circle = document.getElementById('breathCircle');
+            const instruction = document.getElementById('breathInstruction');
+            
+            if (isInhaling) {
+                instruction.textContent = '吸气';
+                circle.classList.add('expand');
+                circle.classList.remove('contract');
+                setTimeout(() => {
+                    instruction.textContent = '屏息';
+                }, 4000);
+            } else {
+                instruction.textContent = '呼气';
+                circle.classList.remove('expand');
+                circle.classList.add('contract');
+                breathCount = breathCount > 9 ? 1 : breathCount + 1;
+                circle.textContent = breathCount;
+                document.getElementById('currentCount').textContent = breathCount;
+            }
+            
+            isInhaling = !isInhaling;
+        }
+
+        // 计时器
+        function setDuration(minutes) {
+            stopTimer();
+            timerDuration = minutes * 60;
+            timerRemaining = timerDuration;
+            updateTimerDisplay();
+            
+            document.querySelectorAll('.duration-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function selectMethod(el, method) {
+            currentMethod = method;
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            el.classList.add('active');
+            document.getElementById('timerMethod').textContent = method;
+        }
+
+        function toggleTimer() {
+            if (timerRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            timerRunning = true;
+            document.getElementById('startTimerBtn').textContent = '暂停';
+            timerInterval = setInterval(() => {
+                timerRemaining--;
+                updateTimerDisplay();
+                
+                if (timerRemaining <= 0) {
+                    stopTimer();
+                    showCompletion();
+                    // 更新统计
+                    const minutes = Math.floor(timerDuration / 60);
+                    stats.totalMinutes += minutes;
+                    updateStats();
+                    saveStats();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            timerRunning = false;
+            document.getElementById('startTimerBtn').textContent = '继续';
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerRemaining = timerDuration;
+            updateTimerDisplay();
+            document.getElementById('startTimerBtn').textContent = '开始';
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerRemaining / 60);
+            const secs = timerRemaining % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            if (stats.lastPracticeDate !== today) {
+                if (stats.lastPracticeDate) {
+                    const lastDate = new Date(stats.lastPracticeDate);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays === 1) {
+                        stats.streakDays++;
+                    } else if (diffDays > 1) {
+                        stats.streakDays = 1;
+                    }
+                } else {
+                    stats.streakDays = 1;
+                }
+                stats.totalDays++;
+                stats.lastPracticeDate = today;
+            }
+            updateStatsDisplay();
+        }
+
+        // 完成提示
+        function showCompletion() {
+            document.getElementById('completionModal').style.display = 'flex';
+            // 播放结束钟声（可选）
+        }
+
+        function closeModal() {
+            document.getElementById('completionModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
