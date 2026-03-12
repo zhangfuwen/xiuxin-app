@@ -75,11 +75,25 @@ xiuxin-app/
 └── .gitignore          # Git 忽略文件
 ```
 
+## 📥 下载
+
+### Android App
+- **最新版本**: v1.3.7 ✅
+- **APK 大小**: 5.2MB
+- **构建状态**: 🟢 GitHub Actions 自动构建成功
+- **下载方式**: GitHub Releases 或联系开发者
+
+### Web App
+- **在线演示**: [http://bot.xjbcode.fun:8082/](http://bot.xjbcode.fun:8082/)
+- **PWA 支持**: 可添加到主屏幕（未来版本）
+
 ## 🛠️ 技术栈
 
 - **纯 HTML/CSS/JavaScript** - 无依赖，轻量级
 - **localStorage** - 本地数据存储
 - **响应式设计** - 手机/平板/桌面适配
+- **Android WebView** - 原生封装
+- **GitHub Actions** - CI/CD 自动构建
 
 ## 📅 开发计划
 
@@ -122,6 +136,27 @@ xiuxin-app/
 - 加持语 - 《论语》《大学》《中庸》
 
 ## 📝 更新日志
+
+### v1.3.7 (2026-03-13) 🎉
+- ✅ **首次 Android APK 构建成功**
+- 🔧 修复 Gradle 仓库配置冲突
+- 🔧 降级 Gradle 到 8.4 以兼容 AGP 8.2.0
+- 🔧 添加官方 Gradle Wrapper 文件
+- 🔧 移除不存在的图标引用
+- 🔧 移除已废弃的 setAppCacheEnabled API
+- 📦 APK 大小：5.2MB
+
+### v1.3.6 (2026-03-12)
+- 🔧 修复 AndroidManifest 图标资源缺失问题
+
+### v1.3.5 (2026-03-12)
+- 🔧 添加完整的 Gradle Wrapper 配置
+
+### v1.3.4 (2026-03-12)
+- 🔧 调整 Gradle 版本兼容性
+
+### v1.3.3 (2026-03-12)
+- 🔧 修复 Gradle 仓库配置
 
 ### v1.3.0 (2026-03-12)
 - ✨ 加持语支持长文本实践指导
