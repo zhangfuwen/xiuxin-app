@@ -6,13 +6,15 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  ANDROID_HOME: /usr/local/lib/android/sdk
+
 jobs:
   build:
     name: Build APK
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -22,30 +24,42 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 9.0
 
-      - name: Copy web assets to Android
+      - name: Accept Android Licenses
+        run: |
+          yes | sdkmanager --licenses || true
+
+      - name: Install Required SDK Components
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Copy Web Assets
         run: |
           mkdir -p android/app/src/main/assets
           cp index.html android/app/src/main/assets/
-          echo "✅ Assets copied"
+          ls -la android/app/src/main/assets/
 
-      - name: Build APK
+      - name: Build Release APK
         run: |
           cd android
           gradle wrapper
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
-          
+          ./gradlew clean assembleRelease --no-daemon --stacktrace
+
       - name: Find APK
         id: find_apk
         run: |
-          APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
-          if [ -z "$APK_PATH" ]; then
-            APK_PATH=$(find android/app/build/outputs -name "*.apk" | head -1)
+          APK_FILE=$(find android/app/build/outputs/apk/release -name "*.apk" -type f | head -1)
+          if [ -z "$APK_FILE" ]; then
+            echo "❌ APK not found!"
+            find android/app/build/outputs -name "*.apk" -type f
+            exit 1
           fi
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-          echo "Found: $APK_PATH"
-          
+          echo "✅ Found APK: $APK_FILE"
+          echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -53,17 +67,19 @@ jobs:
           path: ${{ steps.find_apk.outputs.apk_path }}
           retention-days: 30
 
-      - name: Create Release
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ steps.find_apk.outputs.apk_path }}
           generate_release_notes: true
+          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Summary
+      - name: Build Summary
         run: |
-          echo "## Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## 📱 Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "- Version: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- APK: ${{ steps.find_apk.outputs.apk_path }}" >> $GITHUB_STEP_SUMMARY
