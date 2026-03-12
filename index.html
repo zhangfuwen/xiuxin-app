@@ -51,19 +51,51 @@
             margin-bottom: 24px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .blessing-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        }
+
+        .blessing-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #5a4a42;
+            margin-bottom: 16px;
         }
 
         .blessing-text {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             line-height: 1.8;
             color: #4a4a4a;
             margin-bottom: 16px;
             font-style: italic;
+            white-space: pre-line;
         }
 
         .blessing-source {
             font-size: 0.9rem;
             color: #999;
+            margin-bottom: 12px;
+        }
+
+        .blessing-practice {
+            font-size: 0.95rem;
+            color: #8b7355;
+            padding: 12px 16px;
+            background: #f9f7f4;
+            border-radius: 8px;
+            border-left: 3px solid #8b7355;
+            text-align: left;
+        }
+
+        .blessing-hint {
+            font-size: 0.8rem;
+            color: #bbb;
+            margin-top: 12px;
         }
 
         /* 功能卡片 */
@@ -696,18 +728,121 @@
 
         let currentSelectedMethod = '数息观';
 
-        // 加持语库
+        // 加持语库（支持长文本）
         const blessings = [
-            { text: "应无所住，而生其心。", source: "金刚经" },
-            { text: "知人者智，自知者明。", source: "道德经" },
-            { text: "吾日三省吾身。", source: "论语" },
-            { text: "心无挂碍，无有恐怖。", source: "心经" },
-            { text: "上善若水，水善利万物而不争。", source: "道德经" },
-            { text: "学而时习之，不亦说乎？", source: "论语" },
-            { text: "一切有为法，如梦幻泡影。", source: "金刚经" },
-            { text: "致虚极，守静笃。", source: "道德经" },
-            { text: "大学之道，在明明德。", source: "大学" },
-            { text: "色即是空，空即是色。", source: "心经" }
+            {
+                type: 'short',
+                text: "知人者智，自知者明。",
+                source: "道德经",
+                practice: "今日觉察：我是否真正了解自己？"
+            },
+            {
+                type: 'long',
+                title: "关于心气",
+                text: `你以为心气是个开关，啪嗒一下就关了，从此再也打不开？不。
+
+真正的情况是：心气从来不会消失，只会被你藏起来。
+
+藏在你不敢承认的失败里，藏在你不肯接受的现实里，藏在你死活放不下的"我本该更好"的执念里。
+
+你要的不是"重燃斗志"，而是"先承认自己真的输了"，然后在输掉的废墟里，找到一个能让你重新站起来的理由。
+
+很多人不是输在"挫折"上，而是输在"不肯认输"上。`,
+                source: "修心实践",
+                practice: "今日修习：承认一件你不愿面对的事，然后问自己："即使如此，我还能做什么？""
+            },
+            {
+                type: 'short',
+                text: "应无所住，而生其心。",
+                source: "金刚经",
+                practice: "今日觉察：我的心"住"在什么事情上放不下？"
+            },
+            {
+                type: 'long',
+                title: "关于焦虑",
+                text: `焦虑不是你的敌人，它是你内心最诚实的警报器。
+
+它在告诉你：你太想控制了。
+
+你想知道明天会发生什么，你想知道努力会不会有结果，你想知道爱的人会不会离开。
+
+但真相是：你什么都控制不了。
+
+修心不是学会控制，而是学会放手。
+
+放手不是放弃，而是承认："我尽力了，剩下的交给时间。"`,
+                source: "修心实践",
+                practice: "今日修习：当焦虑来临时，对自己说："我承认我控制不了，但我可以安住此刻。""
+            },
+            {
+                type: 'short',
+                text: "吾日三省吾身。",
+                source: "论语",
+                practice: "今晚睡前，问自己：今天有没有对不住的人？有没有该做没做的事？"
+            },
+            {
+                type: 'long',
+                title: "关于愤怒",
+                text: `愤怒是二次情绪。
+
+第一次受伤时，你感到疼痛。但你不敢承认疼痛，因为你怕显得软弱。
+
+于是你把疼痛转化成愤怒——愤怒让你感觉强大，愤怒让你有理由指责别人，愤怒让你不用面对自己的脆弱。
+
+但真正的强大，是敢于承认："我受伤了，我很痛。"
+
+承认脆弱，才是真正的勇敢。`,
+                source: "修心实践",
+                practice: "今日修习：当愤怒升起时，问自己："我真正感受到的是什么？是受伤？是恐惧？还是委屈？""
+            },
+            {
+                type: 'short',
+                text: "上善若水，水善利万物而不争。",
+                source: "道德经",
+                practice: "今日修习：像水一样，柔软但有力。遇到障碍，绕过去，继续向前。"
+            },
+            {
+                type: 'long',
+                title: "关于执念",
+                text: `你放不下的，不是那个人，那件事，那个结果。
+
+你放不下的，是"我本该更好"的自己。
+
+你想象过无数个"如果当初"的场景：如果当初更努力，如果当初更勇敢，如果当初没说那句话……
+
+但真相是：没有如果。
+
+修心不是抹去记忆，而是和过去的自己和解。
+
+和解不是原谅别人，而是放过自己。`,
+                source: "修心实践",
+                practice: "今日修习：写一封信给过去的自己，告诉他/她："你已经尽力了，我原谅你。""
+            },
+            {
+                type: 'short',
+                text: "心无挂碍，无有恐怖。",
+                source: "心经",
+                practice: "今日觉察：心里有什么放不下的？试着轻轻松开一点。"
+            },
+            {
+                type: 'long',
+                title: "关于孤独",
+                text: `你不是真的孤独，你是真的不敢靠近。
+
+你怕别人看到你的不堪，你的脆弱，你的不够好。
+
+于是你把自己藏起来，用"我喜欢独处"来安慰自己。
+
+但真相是：人都需要连接。
+
+修心不是学会独处，而是学会真实地活着。
+
+真实地活着，意味着敢于让别人看到你的不完美。
+
+而真正爱你的人，爱的就是你的不完美。`,
+                source: "修心实践",
+                practice: "今日修习：找一个你信任的人，告诉他/她一件你一直不敢说的事。"
+            }
         ];
 
         // 戒律列表
@@ -756,8 +891,29 @@
         // 加载随机加持语
         function loadRandomBlessing() {
             const blessing = blessings[Math.floor(Math.random() * blessings.length)];
-            document.getElementById('blessingText').textContent = `"${blessing.text}"`;
-            document.getElementById('blessingSource').textContent = `—— ${blessing.source}`;
+            const card = document.querySelector('.blessing-card');
+            
+            // 长文本加持语
+            if (blessing.type === 'long') {
+                card.innerHTML = `
+                    <div class="blessing-title">${blessing.title}</div>
+                    <div class="blessing-text">${blessing.text}</div>
+                    <div class="blessing-source">—— ${blessing.source}</div>
+                    <div class="blessing-practice">💡 ${blessing.practice}</div>
+                    <div class="blessing-hint">点击切换下一条</div>
+                `;
+            } else {
+                // 短句加持语
+                card.innerHTML = `
+                    <div class="blessing-text">"${blessing.text}"</div>
+                    <div class="blessing-source">—— ${blessing.source}</div>
+                    <div class="blessing-practice">💡 ${blessing.practice}</div>
+                    <div class="blessing-hint">点击切换下一条</div>
+                `;
+            }
+            
+            // 添加点击切换事件
+            card.onclick = loadRandomBlessing;
         }
 
         // 更新戒律日期
