@@ -559,7 +559,8 @@
 
         <!-- 戒律打卡 -->
         <div id="preceptView" class="precept-container">
-            <h2 style="text-align: center; color: #5a4a42; margin-bottom: 20px;">今日功课</h2>
+            <h2 style="text-align: center; color: #5a4a42; margin-bottom: 8px;">今日功课</h2>
+            <div style="text-align: center; color: #999; font-size: 0.95rem; margin-bottom: 20px;" id="preceptDate"></div>
             <div class="precept-list" id="preceptList">
                 <!-- 由 JS 动态生成 -->
             </div>
@@ -650,6 +651,8 @@
         let breathCount = 1;
         let breathInProgress = false;
         let breathInterval = null;
+        let breathStartTime = null;
+        let breathCyclesCompleted = 0;
         let isInhaling = true;
 
         let timerDuration = 10 * 60; // 10 分钟
@@ -662,14 +665,19 @@
             totalDays: 0,
             totalMinutes: 0,
             streakDays: 0,
-            lastPracticeDate: null
+            lastPracticeDate: null,
+            practices: []
         };
+
+        // 音频上下文
+        let audioContext = null;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             loadRandomBlessing();
             loadPrecepts();
             loadStats();
+            updatePreceptDate();
         });
 
         // 加载随机加持语
@@ -677,6 +685,37 @@
             const blessing = blessings[Math.floor(Math.random() * blessings.length)];
             document.getElementById('blessingText').textContent = `"${blessing.text}"`;
             document.getElementById('blessingSource').textContent = `—— ${blessing.source}`;
+        }
+
+        // 更新戒律日期
+        function updatePreceptDate() {
+            const today = new Date();
+            const dateStr = `${today.getMonth() + 1}月${today.getDate()}日`;
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekStr = `星期${weekDays[today.getDay()]}`;
+            document.getElementById('preceptDate').textContent = `${dateStr} ${weekStr}`;
+            
+            // 检查是否需要重置今日打卡
+            const lastDate = localStorage.getItem('xiuxin_precept_date');
+            const todayStr = today.toDateString();
+            if (lastDate !== todayStr) {
+                // 新的一天，重置所有打卡
+                document.querySelectorAll('.precept-check').forEach(el => {
+                    el.classList.remove('checked');
+                });
+                localStorage.setItem('xiuxin_precept_date', todayStr);
+            } else {
+                // 恢复今日的打卡状态
+                const saved = localStorage.getItem('xiuxin_precepts_' + todayStr);
+                if (saved) {
+                    const checkedIndices = JSON.parse(saved);
+                    document.querySelectorAll('.precept-check').forEach((el, i) => {
+                        if (checkedIndices.includes(i)) {
+                            el.classList.add('checked');
+                        }
+                    });
+                }
+            }
         }
 
         // 加载戒律
@@ -696,6 +735,17 @@
         // 切换戒律状态
         function togglePrecept(el, index) {
             el.classList.toggle('checked');
+            
+            // 保存今日打卡状态
+            const todayStr = new Date().toDateString();
+            const checkedIndices = [];
+            document.querySelectorAll('.precept-check').forEach((el, i) => {
+                if (el.classList.contains('checked')) {
+                    checkedIndices.push(i);
+                }
+            });
+            localStorage.setItem('xiuxin_precepts_' + todayStr, JSON.stringify(checkedIndices));
+            
             saveStats();
         }
 
@@ -769,6 +819,8 @@
 
         function startBreath() {
             breathInProgress = true;
+            breathStartTime = Date.now();
+            breathCyclesCompleted = 0;
             document.getElementById('startBreathBtn').textContent = '暂停';
             breathCycle();
             breathInterval = setInterval(breathCycle, 8000); // 8 秒一个循环
@@ -778,6 +830,30 @@
             breathInProgress = false;
             document.getElementById('startBreathBtn').textContent = '继续';
             clearInterval(breathInterval);
+            
+            // 显示修习反馈
+            if (breathStartTime) {
+                const duration = Math.floor((Date.now() - breathStartTime) / 1000);
+                const cycles = breathCyclesCompleted;
+                showBreathFeedback(duration, cycles);
+            }
+        }
+
+        // 呼吸练习反馈
+        function showBreathFeedback(duration, cycles) {
+            const modal = document.getElementById('completionModal');
+            const title = modal.querySelector('.completion-title');
+            const text = modal.querySelector('.completion-text');
+            
+            title.textContent = '修习圆满';
+            text.innerHTML = `本次修习 ${duration} 秒<br>完成 ${cycles} 次呼吸循环`;
+            
+            modal.style.display = 'flex';
+            
+            // 记录修习数据
+            stats.totalMinutes += Math.floor(duration / 60);
+            updateStats();
+            saveStats();
         }
 
         function breathCycle() {
@@ -798,6 +874,7 @@
                 breathCount = breathCount > 9 ? 1 : breathCount + 1;
                 circle.textContent = breathCount;
                 document.getElementById('currentCount').textContent = breathCount;
+                breathCyclesCompleted++;
             }
             
             isInhaling = !isInhaling;
@@ -836,12 +913,17 @@
         function startTimer() {
             timerRunning = true;
             document.getElementById('startTimerBtn').textContent = '暂停';
+            
+            // 播放开始钟声
+            playBell();
+            
             timerInterval = setInterval(() => {
                 timerRemaining--;
                 updateTimerDisplay();
                 
                 if (timerRemaining <= 0) {
                     stopTimer();
+                    playBell(); // 播放结束钟声
                     showCompletion();
                     // 更新统计
                     const minutes = Math.floor(timerDuration / 60);
@@ -901,6 +983,65 @@
 
         function closeModal() {
             document.getElementById('completionModal').style.display = 'none';
+        }
+
+        // 播放钟声（Web Audio API）
+        function playBell() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 创建振荡器（钟声）
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // 钟声频率（类似引磬）
+                oscillator.frequency.value = 528; // 528Hz 是"爱"的频率
+                oscillator.type = 'sine';
+                
+                // 音量包络（渐弱）
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 2);
+                
+                // 0.5 秒后再响一次（余音）
+                setTimeout(() => {
+                    const oscillator2 = audioContext.createOscillator();
+                    const gainNode2 = audioContext.createGain();
+                    
+                    oscillator2.connect(gainNode2);
+                    gainNode2.connect(audioContext.destination);
+                    
+                    oscillator2.frequency.value = 528;
+                    oscillator2.type = 'sine';
+                    
+                    gainNode2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+                    
+                    oscillator2.start(audioContext.currentTime);
+                    oscillator2.stop(audioContext.currentTime + 1.5);
+                }, 500);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        // 保存戒律状态（辅助函数）
+        function savePreceptState() {
+            const todayStr = new Date().toDateString();
+            const checkedIndices = [];
+            document.querySelectorAll('.precept-check').forEach((el, i) => {
+                if (el.classList.contains('checked')) {
+                    checkedIndices.push(i);
+                }
+            });
+            localStorage.setItem('xiuxin_precepts_' + todayStr, JSON.stringify(checkedIndices));
         }
     </script>
 </body>
