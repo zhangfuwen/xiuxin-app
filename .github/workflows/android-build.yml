@@ -27,35 +27,43 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets
           cp index.html android/app/src/main/assets/
-          echo "Assets copied successfully"
+          echo "✅ Assets copied"
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x android/gradlew || echo "gradlew not found, will use gradle wrapper"
-
-      - name: Build with Gradle
+      - name: Build APK
         run: |
           cd android
-          ./gradlew assembleRelease || gradle assembleRelease
+          gradle wrapper
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          
+      - name: Find APK
+        id: find_apk
+        run: |
+          APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -z "$APK_PATH" ]; then
+            APK_PATH=$(find android/app/build/outputs -name "*.apk" | head -1)
+          fi
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "Found: $APK_PATH"
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: xiuxin-app
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          name: xiuxin-app-release
+          path: ${{ steps.find_apk.outputs.apk_path }}
           retention-days: 30
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          files: ${{ steps.find_apk.outputs.apk_path }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify Build Success
-        if: success()
+      - name: Summary
         run: |
-          echo "✅ Build successful!"
-          echo "APK version: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
+          echo "## Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
