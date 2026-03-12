@@ -6,12 +6,8 @@ on:
       - 'v*'
   workflow_dispatch:
 
-env:
-  ANDROID_HOME: /usr/local/lib/android/sdk
-
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,62 +20,36 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 9.0
 
-      - name: Accept Android Licenses
-        run: |
-          yes | sdkmanager --licenses || true
-
-      - name: Install Required SDK Components
-        run: |
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-
-      - name: Copy Web Assets
+      - name: Copy Assets
         run: |
           mkdir -p android/app/src/main/assets
           cp index.html android/app/src/main/assets/
-          ls -la android/app/src/main/assets/
 
-      - name: Build Release APK
+      - name: Build Debug APK
         run: |
           cd android
           gradle wrapper
-          chmod +x gradlew
-          ./gradlew clean assembleRelease --no-daemon --stacktrace
+          ./gradlew assembleDebug --no-daemon
 
       - name: Find APK
-        id: find_apk
+        id: apk
         run: |
-          APK_FILE=$(find android/app/build/outputs/apk/release -name "*.apk" -type f | head -1)
-          if [ -z "$APK_FILE" ]; then
-            echo "❌ APK not found!"
-            find android/app/build/outputs -name "*.apk" -type f
-            exit 1
-          fi
-          echo "✅ Found APK: $APK_FILE"
-          echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
+          APK=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          echo "path=$APK" >> $GITHUB_OUTPUT
+          echo "Found: $APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: xiuxin-app-release
-          path: ${{ steps.find_apk.outputs.apk_path }}
-          retention-days: 30
+          name: xiuxin-app-debug
+          path: ${{ steps.apk.outputs.path }}
 
-      - name: Create GitHub Release
+      - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ steps.find_apk.outputs.apk_path }}
+          files: ${{ steps.apk.outputs.path }}
           generate_release_notes: true
-          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Summary
-        run: |
-          echo "## 📱 Build Complete" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- APK: ${{ steps.find_apk.outputs.apk_path }}" >> $GITHUB_STEP_SUMMARY
