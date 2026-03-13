@@ -10,8 +10,8 @@ android {
         applicationId "com.xiuxin.app"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 4
-        versionName "1.3.4"
+        versionCode 5
+        versionName "1.4.0"
     }
 
     buildTypes {
@@ -32,4 +32,6 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
 }

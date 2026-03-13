@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🧘 呼吸练习"
+        android:textSize="24sp"
+        android:textColor="#5a4a42"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="观呼吸，安住当下"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="32dp" />
+
+    <View
+        android:id="@+id/breathingCircle"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@drawable/breathing_circle"
+        android:layout_marginBottom="32dp" />
+
+    <TextView
+        android:id="@+id/breathingInstruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="准备开始"
+        android:textSize="28sp"
+        android:textColor="#8b7355"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/startBreathingBtn"
+        android:layout_width="200dp"
+        android:layout_height="56dp"
+        android:text="开始练习"
+        android:textSize="18sp"
+        android:background="@drawable/button_primary"
+        android:textColor="#ffffff" />
+
+</LinearLayout>

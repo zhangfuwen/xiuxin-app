@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⏱️ 冥想计时"
+        android:textSize="24sp"
+        android:textColor="#5a4a42"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="三种法门可选"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="32dp" />
+
+    <TextView
+        android:id="@+id/meditationTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="05:00"
+        android:textSize="64sp"
+        android:textColor="#8b7355"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/meditationMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="数息观"
+        android:textSize="18sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="32dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/mode5minBtn"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="5 分钟 - 数息观"
+            android:textSize="16sp"
+            android:background="@drawable/button_primary"
+            android:textColor="#ffffff"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/mode10minBtn"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="10 分钟 - 随息观"
+            android:textSize="16sp"
+            android:background="@drawable/button_primary"
+            android:textColor="#ffffff"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/mode20minBtn"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="20 分钟 - 止观"
+            android:textSize="16sp"
+            android:background="@drawable/button_primary"
+            android:textColor="#ffffff" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/stopMeditationBtn"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="结束修习"
+        android:textSize="16sp"
+        android:background="@drawable/button_secondary"
+        android:textColor="#8b7355"
+        android:visibility="gone" />
+
+</LinearLayout>
