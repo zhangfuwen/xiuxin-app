@@ -13,7 +13,7 @@ import com.xiuxin.app.fragment.StatsFragment;
 
 public class MainPagerAdapter extends FragmentStateAdapter {
 
-    private final String[] tabTitles = {"加持", "呼吸", "冥想", "功课", "统计"};
+    private final String[] tabTitles = {"正念", "呼吸", "冥想", "功课", "统计"};
 
     public MainPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
