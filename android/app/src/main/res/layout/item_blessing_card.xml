@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/card_item_background"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:selectableItemBackground">
+
+    <!-- 分类标签 -->
+    <TextView
+        android:id="@+id/categoryTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="禅宗"
+        android:textSize="12sp"
+        android:textColor="#8b7355"
+        android:background="@drawable/category_chip"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 正念文字 -->
+    <TextView
+        android:id="@+id/blessingText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="心本无生因境有，境若无时心亦无。"
+        android:textSize="20sp"
+        android:textColor="#333333"
+        android:lineSpacingExtra="8dp"
+        android:fontFamily="serif"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 来源 -->
+    <TextView
+        android:id="@+id/blessingSource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="—— 《楞严经》"
+        android:textSize="14sp"
+        android:textColor="#999999"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#f0f0f0"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 今日练习 -->
+    <TextView
+        android:id="@+id/blessingPractice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💡 观察一个升起的念头，不跟随，不压抑，只是看着它来去。"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:lineSpacingExtra="4dp"
+        android:background="@drawable/practice_hint_background"
+        android:padding="12dp" />
+
+    <!-- 底部互动栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+
+        <ImageButton
+            android:id="@+id/likeBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_heart_outline"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:contentDescription="点赞" />
+
+        <TextView
+            android:id="@+id/likeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1.2k"
+            android:textSize="13sp"
+            android:textColor="#999999"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="16dp" />
+
+        <ImageButton
+            android:id="@+id/favoriteBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_star_outline"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:contentDescription="收藏" />
+
+        <TextView
+            android:id="@+id/favoriteCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="856"
+            android:textSize="13sp"
+            android:textColor="#999999"
+            android:layout_marginStart="4dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击查看详情"
+            android:textSize="12sp"
+            android:textColor="#cccccc" />
+    </LinearLayout>
+
+</LinearLayout>

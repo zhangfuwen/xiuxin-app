@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f8f5f2"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- 关闭按钮 -->
+        <ImageButton
+            android:id="@+id/closeBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_close"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:contentDescription="关闭"
+            android:layout_gravity="end"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 分类标签 -->
+        <TextView
+            android:id="@+id/categoryTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="禅宗"
+            android:textSize="14sp"
+            android:textColor="#8b7355"
+            android:background="@drawable/category_chip"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="32dp" />
+
+        <!-- 正念文字 - 大字体 -->
+        <TextView
+            android:id="@+id/blessingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="心本无生因境有，境若无时心亦无。"
+            android:textSize="32sp"
+            android:textColor="#333333"
+            android:lineSpacingExtra="16dp"
+            android:fontFamily="serif"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 来源 -->
+        <TextView
+            android:id="@+id/blessingSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—— 《楞严经》"
+            android:textSize="18sp"
+            android:textColor="#999999"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="48dp" />
+
+        <!-- 装饰线 -->
+        <View
+            android:layout_width="100dp"
+            android:layout_height="3dp"
+            android:background="#8b7355"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="32dp" />
+
+        <!-- 今日练习卡片 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💡 今日练习"
+            android:textSize="16sp"
+            android:textColor="#8b7355"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/practice_hint_background"
+            android:padding="20dp"
+            android:layout_marginBottom="32dp">
+
+            <TextView
+                android:id="@+id/blessingPractice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="心随境转是凡夫，境随心转是圣贤。今日练习：观察一个升起的念头，不跟随，不压抑，只是看着它来去。"
+                android:textSize="18sp"
+                android:textColor="#666666"
+                android:lineSpacingExtra="8dp" />
+        </LinearLayout>
+
+        <!-- 底部互动按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/likeBtn"
+                android:layout_width="140dp"
+                android:layout_height="48dp"
+                android:text="❤️ 点赞"
+                android:textSize="16sp"
+                android:background="@drawable/button_primary"
+                android:textColor="#ffffff"
+                android:layout_marginEnd="16dp" />
+
+            <Button
+                android:id="@+id/favoriteBtn"
+                android:layout_width="140dp"
+                android:layout_height="48dp"
+                android:text="⭐ 收藏"
+                android:textSize="16sp"
+                android:background="@drawable/button_secondary"
+                android:textColor="#8b7355" />
+        </LinearLayout>
+
+        <!-- 分享按钮 -->
+        <Button
+            android:id="@+id/shareBtn"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="📤 分享"
+            android:textSize="16sp"
+            android:background="@drawable/button_outline"
+            android:textColor="#8b7355"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+</ScrollView>

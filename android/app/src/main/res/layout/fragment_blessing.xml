@@ -1,152 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f5f0eb">
+    android:orientation="vertical"
+    android:background="#f8f5f2">
 
+    <!-- 顶部标题栏 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="#ffffff">
 
-        <!-- 分类标签 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:id="@+id/categoryChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="禅宗"
-                android:textSize="14sp"
-                android:textColor="#8b7355"
-                android:background="@drawable/category_chip"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp" />
-        </LinearLayout>
-
-        <!-- 正念卡片 -->
-        <LinearLayout
-            android:id="@+id/blessingCard"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/blessing_card_background"
-            android:padding="32dp"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:selectableItemBackground">
-
-            <TextView
-                android:id="@+id/blessingText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="心本无生因境有，境若无时心亦无。"
-                android:textSize="24sp"
-                android:textColor="#4a4a4a"
-                android:lineSpacingExtra="12dp"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/blessingSource"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="—— 《楞严经》"
-                android:textSize="16sp"
-                android:textColor="#999999"
-                android:layout_marginBottom="32dp"
-                android:layout_gravity="center_horizontal" />
-
-            <View
-                android:layout_width="64dp"
-                android:layout_height="2dp"
-                android:background="#8b7355"
-                android:layout_marginBottom="24dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/practice_hint_background"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="💡 今日练习"
-                    android:textSize="14sp"
-                    android:textColor="#8b7355"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/blessingPractice"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="心随境转是凡夫，境随心转是圣贤。今日练习：观察一个升起的念头，不跟随，不压抑，只是看着它来去。"
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:lineSpacingExtra="6dp" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- 底部提示 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp">
-
-            <ImageButton
-                android:id="@+id/prevBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_prev"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:contentDescription="上一条"
-                android:layout_marginEnd="32dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点击卡片刷新 · 滑动切换"
-                android:textSize="13sp"
-                android:textColor="#bbbbbb" />
-
-            <ImageButton
-                android:id="@+id/nextBtn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_next"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:contentDescription="下一条"
-                android:layout_marginStart="32dp" />
-        </LinearLayout>
-
-        <!-- 收藏提示 -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="💜 双击收藏喜欢的正念"
-            android:textSize="12sp"
-            android:textColor="#cccccc"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp" />
+            android:layout_weight="1"
+            android:text="正念"
+            android:textSize="24sp"
+            android:textColor="#5a4a42"
+            android:textStyle="bold" />
 
+        <!-- 分类筛选 -->
+        <Spinner
+            android:id="@+id/categorySpinner"
+            android:layout_width="120dp"
+            android:layout_height="40dp"
+            android:background="@drawable/category_spinner_bg" />
     </LinearLayout>
 
-</FrameLayout>
+    <!-- 卡片列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blessingRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>
