@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Xiuxin" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#F5F0EB</item>
+    <style name="Theme.Xiuxin" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#8b7355</item>
+        <item name="colorPrimaryDark">#5a4a42</item>
+        <item name="colorAccent">#8b7355</item>
+        <item name="android:statusBarColor">#5a4a42</item>
         <item name="android:navigationBarColor">#F5F0EB</item>
         <item name="android:windowBackground">#F5F0EB</item>
     </style>
