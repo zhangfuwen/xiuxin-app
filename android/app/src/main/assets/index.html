@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修心 - 安住当下</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f0eb 0%, #e8e4dc 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #5a4a42;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            color: #8b7d72;
+            font-weight: 300;
+        }
+
+        /* 今日加持语卡片 */
+        .blessing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .blessing-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        }
+
+        .blessing-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #5a4a42;
+            margin-bottom: 16px;
+        }
+
+        .blessing-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a4a4a;
+            margin-bottom: 16px;
+            font-style: italic;
+            white-space: pre-line;
+        }
+
+        .blessing-source {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .blessing-practice {
+            font-size: 0.95rem;
+            color: #8b7355;
+            padding: 12px 16px;
+            background: #f9f7f4;
+            border-radius: 8px;
+            border-left: 3px solid #8b7355;
+            text-align: left;
+        }
+
+        .blessing-hint {
+            font-size: 0.8rem;
+            color: #bbb;
+            margin-top: 12px;
+        }
+
+        /* 功能卡片 */
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #5a4a42;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        /* 呼吸练习界面 */
+        .breath-container {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .breath-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4c5b9 0%, #b8a99d 100%);
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            transition: transform 4s ease-in-out;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .breath-circle.expand {
+            transform: scale(1.3);
+        }
+
+        .breath-circle.contract {
+            transform: scale(1);
+        }
+
+        .breath-instruction {
+            font-size: 1.5rem;
+            color: #5a4a42;
+            margin-bottom: 20px;
+        }
+
+        .breath-count {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* 计时器界面 */
+        .timer-container {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 300;
+            color: #5a4a42;
+            margin: 40px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-method {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b7355 0%, #6b5a4a 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #e8e4dc;
+            color: #5a4a42;
+        }
+
+        .btn-secondary:hover {
+            background: #d4cfc7;
+        }
+
+        .btn-group {
+            margin: 20px 0;
+        }
+
+        /* 时长选择 */
+        .duration-selector {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .duration-btn {
+            padding: 10px 20px;
+            border: 2px solid #d4c5b9;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .duration-btn.active {
+            background: #8b7355;
+            color: white;
+            border-color: #8b7355;
+        }
+
+        /* 法门选择 */
+        .method-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .method-card {
+            padding: 16px;
+            border: 2px solid #e8e4dc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .method-card:hover {
+            border-color: #8b7355;
+        }
+
+        .method-card.active {
+            background: #8b7355;
+            color: white;
+            border-color: #8b7355;
+        }
+
+        .method-card h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .method-card p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* 统计 */
+        .stats-container {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #8b7355;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 16px;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #5a4a42;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: #f5f0eb;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e8e4dc;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 8px 16px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f5f0eb;
+        }
+
+        .nav-item.active {
+            color: #8b7355;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .nav-item.active .nav-label {
+            color: #8b7355;
+        }
+
+        /* 戒律打卡 */
+        .precept-container {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .precept-list {
+            margin: 20px 0;
+        }
+
+        .precept-item {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .precept-text {
+            flex: 1;
+        }
+
+        .precept-title {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .precept-desc {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .precept-check {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #d4c5b9;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .precept-check.checked {
+            background: #8b7355;
+            border-color: #8b7355;
+            color: white;
+        }
+
+        /* 完成提示 */
+        .completion-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .completion-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 320px;
+            margin: 20px;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 1.5rem;
+            color: #5a4a42;
+            margin-bottom: 12px;
+        }
+
+        .completion-text {
+            color: #888;
+            margin-bottom: 24px;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" id="backBtn" onclick="goBack()">← 返回</button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>修心</h1>
+            <div class="subtitle">安住当下 · 修心修身</div>
+        </div>
+
+        <!-- 首页 -->
+        <div id="homeView" class="fade-in">
+            <!-- 今日加持语 -->
+            <div class="blessing-card">
+                <div class="blessing-text" id="blessingText">
+                    "应无所住，而生其心。"
+                </div>
+                <div class="blessing-source" id="blessingSource">
+                    —— 金刚经
+                </div>
+            </div>
+
+            <!-- 功能入口 -->
+            <div class="feature-card" onclick="showBreath()">
+                <div class="feature-icon">🧘</div>
+                <h3>呼吸练习</h3>
+                <p>数息观，安住当下</p>
+            </div>
+
+            <div class="feature-card" onclick="showTimer()">
+                <div class="feature-icon">🪑</div>
+                <h3>冥想计时</h3>
+                <p>儒释道法门，深度实修</p>
+            </div>
+
+            <div class="feature-card" onclick="showPrecepts()">
+                <div class="feature-icon">📜</div>
+                <h3>戒律打卡</h3>
+                <p>日常践行，落地生根</p>
+            </div>
+
+            <div class="feature-card" onclick="showStats()">
+                <div class="feature-icon">📊</div>
+                <h3>修习统计</h3>
+                <p>看见成长的足迹</p>
+            </div>
+        </div>
+
+        <!-- 呼吸练习 -->
+        <div id="breathView" class="breath-container">
+            <div class="breath-instruction" id="breathInstruction">吸气</div>
+            <div class="breath-circle" id="breathCircle">1</div>
+            <div class="breath-count">第 <span id="currentCount">1</span> 息</div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startBreathBtn" onclick="toggleBreath()">开始练习</button>
+                <button class="btn btn-secondary" onclick="goBack()">结束</button>
+            </div>
+        </div>
+
+        <!-- 冥想计时 -->
+        <div id="timerView" class="timer-container">
+            <div class="timer-method" id="timerMethod">数息观</div>
+            <div class="timer-display" id="timerDisplay">10:00</div>
+            
+            <div class="duration-selector">
+                <button class="duration-btn" onclick="setDuration(5)">5 分钟</button>
+                <button class="duration-btn active" onclick="setDuration(10)">10 分钟</button>
+                <button class="duration-btn" onclick="setDuration(20)">20 分钟</button>
+                <button class="duration-btn" onclick="setDuration(30)">30 分钟</button>
+            </div>
+
+            <div class="method-selector">
+                <div class="method-card active" onclick="selectMethod(this, '数息观')">
+                    <h4>数息观</h4>
+                    <p>佛教 · 入门</p>
+                </div>
+                <div class="method-card" onclick="selectMethod(this, '守窍')">
+                    <h4>守窍</h4>
+                    <p>道教 · 初级</p>
+                </div>
+                <div class="method-card" onclick="selectMethod(this, '静坐')">
+                    <h4>静坐</h4>
+                    <p>儒家 · 入门</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="btn btn-secondary" onclick="showMethodGuide()">📖 法门要领</button>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="startTimerBtn" onclick="toggleTimer()">开始</button>
+                <button class="btn btn-secondary" onclick="resetTimer()">重置</button>
+                <button class="btn btn-secondary" onclick="goBack()">返回</button>
+            </div>
+        </div>
+
+        <!-- 戒律打卡 -->
+        <div id="preceptView" class="precept-container">
+            <h2 style="text-align: center; color: #5a4a42; margin-bottom: 8px;">今日功课</h2>
+            <div style="text-align: center; color: #999; font-size: 0.95rem; margin-bottom: 20px;" id="preceptDate"></div>
+            <div class="precept-list" id="preceptList">
+                <!-- 由 JS 动态生成 -->
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="goBack()">返回</button>
+            </div>
+        </div>
+
+        <!-- 修习统计 -->
+        <div id="statsView" class="stats-container">
+            <h2 style="text-align: center; color: #5a4a42; margin-bottom: 20px;">修习统计</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDays">0</div>
+                    <div class="stat-label">修习天数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalMinutes">0</div>
+                    <div class="stat-label">累计分钟</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streakDays">0</div>
+                    <div class="stat-label">连续天数</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="goBack()">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成提示 -->
+    <div class="completion-modal" id="completionModal">
+        <div class="completion-content">
+            <div class="completion-icon">🙏</div>
+            <div class="completion-title">修习圆满</div>
+            <div class="completion-text">随喜你的精进修习</div>
+            <button class="btn btn-primary" onclick="closeModal()">好的</button>
+        </div>
+    </div>
+
+    <!-- 法门要领提示 -->
+    <div class="completion-modal" id="guideModal">
+        <div class="completion-content" style="max-width: 400px; text-align: left;">
+            <div class="completion-icon" id="guideIcon">🧘</div>
+            <div class="completion-title" id="guideTitle" style="text-align: center;">数息观</div>
+            <div class="completion-text" id="guideContent" style="line-height: 1.8; text-align: left;"></div>
+            <div style="text-align: center;">
+                <button class="btn btn-primary" onclick="closeGuide()">好的</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showHome()">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">首页</span>
+        </div>
+        <div class="nav-item" onclick="showBreath()">
+            <span class="nav-icon">🧘</span>
+            <span class="nav-label">呼吸</span>
+        </div>
+        <div class="nav-item" onclick="showTimer()">
+            <span class="nav-icon">🪑</span>
+            <span class="nav-label">冥想</span>
+        </div>
+        <div class="nav-item" onclick="showStats()">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">统计</span>
+        </div>
+    </div>
+
+    <script>
+        // 法门要领
+        const methodGuides = {
+            '数息观': {
+                icon: '🧘',
+                title: '数息观',
+                source: '佛教 · 入门',
+                content: `
+                    <strong>【练习方法】</strong><br>
+                    1. 自然呼吸，不要刻意控制<br>
+                    2. 吸气时默数 1，呼气时默数 2<br>
+                    3. 从 1 数到 10，然后重新从 1 开始<br>
+                    4. 如果走神了，温和地回到 1<br><br>
+                    <strong>【注意事项】</strong><br>
+                    · 数字只是工具，不要执着<br>
+                    · 走神是正常的，觉察即可<br>
+                    · 不要追求"什么都不想"<br><br>
+                    <strong>【来源】</strong>《清净道论》
+                `
+            },
+            '守窍': {
+                icon: '☯️',
+                title: '守窍',
+                source: '道教 · 初级',
+                content: `
+                    <strong>【练习方法】</strong><br>
+                    1. 轻闭双眼，放松全身<br>
+                    2. 将注意力轻轻放在下丹田<br>
+                    3. 丹田位置：肚脐下三寸（约四指宽）<br>
+                    4. 似守非守，不要用力<br><br>
+                    <strong>【注意事项】</strong><br>
+                    · 意念要轻，如鸡孵卵<br>
+                    · 不要追求热感或气感<br>
+                    · 自然呼吸即可<br><br>
+                    <strong>【来源】</strong>《太上老君说常清静经》
+                `
+            },
+            '静坐': {
+                icon: '📖',
+                title: '静坐',
+                source: '儒家 · 入门',
+                content: `
+                    <strong>【练习方法】</strong><br>
+                    1. 正身端坐，脊背挺直<br>
+                    2. 双手自然放在膝上或结定印<br>
+                    3. 双目微闭，目光内敛<br>
+                    4. 心中默念"敬"字<br><br>
+                    <strong>【注意事项】</strong><br>
+                    · 坐姿端正但不僵硬<br>
+                    · "敬"是主一，专注当下<br>
+                    · 杂念来时，以"敬"字化之<br><br>
+                    <strong>【来源】</strong>朱子静坐法
+                `
+            }
+        };
+
+        let currentSelectedMethod = '数息观';
+
+        // 加持语库（支持长文本）
+        const blessings = [
+            {
+                type: 'short',
+                text: "知人者智，自知者明。",
+                source: "道德经",
+                practice: "今日觉察：我是否真正了解自己？"
+            },
+            {
+                type: 'long',
+                title: "关于心气",
+                text: `你以为心气是个开关，啪嗒一下就关了，从此再也打不开？不。
+
+真正的情况是：心气从来不会消失，只会被你藏起来。
+
+藏在你不敢承认的失败里，藏在你不肯接受的现实里，藏在你死活放不下的"我本该更好"的执念里。
+
+你要的不是"重燃斗志"，而是"先承认自己真的输了"，然后在输掉的废墟里，找到一个能让你重新站起来的理由。
+
+很多人不是输在"挫折"上，而是输在"不肯认输"上。`,
+                source: "修心实践",
+                practice: "今日修习：承认一件你不愿面对的事，然后问自己："即使如此，我还能做什么？""
+            },
+            {
+                type: 'short',
+                text: "应无所住，而生其心。",
+                source: "金刚经",
+                practice: "今日觉察：我的心"住"在什么事情上放不下？"
+            },
+            {
+                type: 'long',
+                title: "关于焦虑",
+                text: `焦虑不是你的敌人，它是你内心最诚实的警报器。
+
+它在告诉你：你太想控制了。
+
+你想知道明天会发生什么，你想知道努力会不会有结果，你想知道爱的人会不会离开。
+
+但真相是：你什么都控制不了。
+
+修心不是学会控制，而是学会放手。
+
+放手不是放弃，而是承认："我尽力了，剩下的交给时间。"`,
+                source: "修心实践",
+                practice: "今日修习：当焦虑来临时，对自己说："我承认我控制不了，但我可以安住此刻。""
+            },
+            {
+                type: 'short',
+                text: "吾日三省吾身。",
+                source: "论语",
+                practice: "今晚睡前，问自己：今天有没有对不住的人？有没有该做没做的事？"
+            },
+            {
+                type: 'long',
+                title: "关于愤怒",
+                text: `愤怒是二次情绪。
+
+第一次受伤时，你感到疼痛。但你不敢承认疼痛，因为你怕显得软弱。
+
+于是你把疼痛转化成愤怒——愤怒让你感觉强大，愤怒让你有理由指责别人，愤怒让你不用面对自己的脆弱。
+
+但真正的强大，是敢于承认："我受伤了，我很痛。"
+
+承认脆弱，才是真正的勇敢。`,
+                source: "修心实践",
+                practice: "今日修习：当愤怒升起时，问自己："我真正感受到的是什么？是受伤？是恐惧？还是委屈？""
+            },
+            {
+                type: 'short',
+                text: "上善若水，水善利万物而不争。",
+                source: "道德经",
+                practice: "今日修习：像水一样，柔软但有力。遇到障碍，绕过去，继续向前。"
+            },
+            {
+                type: 'long',
+                title: "关于执念",
+                text: `你放不下的，不是那个人，那件事，那个结果。
+
+你放不下的，是"我本该更好"的自己。
+
+你想象过无数个"如果当初"的场景：如果当初更努力，如果当初更勇敢，如果当初没说那句话……
+
+但真相是：没有如果。
+
+修心不是抹去记忆，而是和过去的自己和解。
+
+和解不是原谅别人，而是放过自己。`,
+                source: "修心实践",
+                practice: "今日修习：写一封信给过去的自己，告诉他/她："你已经尽力了，我原谅你。""
+            },
+            {
+                type: 'short',
+                text: "心无挂碍，无有恐怖。",
+                source: "心经",
+                practice: "今日觉察：心里有什么放不下的？试着轻轻松开一点。"
+            },
+            {
+                type: 'long',
+                title: "关于孤独",
+                text: `你不是真的孤独，你是真的不敢靠近。
+
+你怕别人看到你的不堪，你的脆弱，你的不够好。
+
+于是你把自己藏起来，用"我喜欢独处"来安慰自己。
+
+但真相是：人都需要连接。
+
+修心不是学会独处，而是学会真实地活着。
+
+真实地活着，意味着敢于让别人看到你的不完美。
+
+而真正爱你的人，爱的就是你的不完美。`,
+                source: "修心实践",
+                practice: "今日修习：找一个你信任的人，告诉他/她一件你一直不敢说的事。"
+            }
+        ];
+
+        // 戒律列表
+        const precepts = [
+            { title: "不妄语", desc: "今日是否诚实待人？" },
+            { title: "不饮酒", desc: "今日是否保持清醒？（包括不过度沉迷手机）" },
+            { title: "三省吾身", desc: "今日是否反思自己的言行？" },
+            { title: "不杀生", desc: "今日是否善待生命？" },
+            { title: "不偷盗", desc: "今日是否尊重他人财物？" }
+        ];
+
+        // 状态变量
+        let currentView = 'home';
+        let breathCount = 1;
+        let breathInProgress = false;
+        let breathInterval = null;
+        let breathStartTime = null;
+        let breathCyclesCompleted = 0;
+        let isInhaling = true;
+
+        let timerDuration = 10 * 60; // 10 分钟
+        let timerRemaining = timerDuration;
+        let timerRunning = false;
+        let timerInterval = null;
+        let currentMethod = '数息观';
+
+        let stats = {
+            totalDays: 0,
+            totalMinutes: 0,
+            streakDays: 0,
+            lastPracticeDate: null,
+            practices: []
+        };
+
+        // 音频上下文
+        let audioContext = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRandomBlessing();
+            loadPrecepts();
+            loadStats();
+            updatePreceptDate();
+        });
+
+        // 加载随机加持语
+        function loadRandomBlessing() {
+            const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+            const card = document.querySelector('.blessing-card');
+            
+            // 长文本加持语
+            if (blessing.type === 'long') {
+                card.innerHTML = `
+                    <div class="blessing-title">${blessing.title}</div>
+                    <div class="blessing-text">${blessing.text}</div>
+                    <div class="blessing-source">—— ${blessing.source}</div>
+                    <div class="blessing-practice">💡 ${blessing.practice}</div>
+                    <div class="blessing-hint">点击切换下一条</div>
+                `;
+            } else {
+                // 短句加持语
+                card.innerHTML = `
+                    <div class="blessing-text">"${blessing.text}"</div>
+                    <div class="blessing-source">—— ${blessing.source}</div>
+                    <div class="blessing-practice">💡 ${blessing.practice}</div>
+                    <div class="blessing-hint">点击切换下一条</div>
+                `;
+            }
+            
+            // 添加点击切换事件
+            card.onclick = loadRandomBlessing;
+        }
+
+        // 更新戒律日期
+        function updatePreceptDate() {
+            const today = new Date();
+            const dateStr = `${today.getMonth() + 1}月${today.getDate()}日`;
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekStr = `星期${weekDays[today.getDay()]}`;
+            document.getElementById('preceptDate').textContent = `${dateStr} ${weekStr}`;
+            
+            // 检查是否需要重置今日打卡
+            const lastDate = localStorage.getItem('xiuxin_precept_date');
+            const todayStr = today.toDateString();
+            if (lastDate !== todayStr) {
+                // 新的一天，重置所有打卡
+                document.querySelectorAll('.precept-check').forEach(el => {
+                    el.classList.remove('checked');
+                });
+                localStorage.setItem('xiuxin_precept_date', todayStr);
+            } else {
+                // 恢复今日的打卡状态
+                const saved = localStorage.getItem('xiuxin_precepts_' + todayStr);
+                if (saved) {
+                    const checkedIndices = JSON.parse(saved);
+                    document.querySelectorAll('.precept-check').forEach((el, i) => {
+                        if (checkedIndices.includes(i)) {
+                            el.classList.add('checked');
+                        }
+                    });
+                }
+            }
+        }
+
+        // 加载戒律
+        function loadPrecepts() {
+            const list = document.getElementById('preceptList');
+            list.innerHTML = precepts.map((p, i) => `
+                <div class="precept-item">
+                    <div class="precept-text">
+                        <div class="precept-title">${p.title}</div>
+                        <div class="precept-desc">${p.desc}</div>
+                    </div>
+                    <div class="precept-check" onclick="togglePrecept(this, ${i})">✓</div>
+                </div>
+            `).join('');
+        }
+
+        // 切换戒律状态
+        function togglePrecept(el, index) {
+            el.classList.toggle('checked');
+            
+            // 保存今日打卡状态
+            const todayStr = new Date().toDateString();
+            const checkedIndices = [];
+            document.querySelectorAll('.precept-check').forEach((el, i) => {
+                if (el.classList.contains('checked')) {
+                    checkedIndices.push(i);
+                }
+            });
+            localStorage.setItem('xiuxin_precepts_' + todayStr, JSON.stringify(checkedIndices));
+            
+            saveStats();
+        }
+
+        // 加载统计
+        function loadStats() {
+            const saved = localStorage.getItem('xiuxin_stats');
+            if (saved) {
+                stats = JSON.parse(saved);
+            }
+            updateStatsDisplay();
+        }
+
+        // 保存统计
+        function saveStats() {
+            localStorage.setItem('xiuxin_stats', JSON.stringify(stats));
+        }
+
+        // 更新统计显示
+        function updateStatsDisplay() {
+            document.getElementById('totalDays').textContent = stats.totalDays;
+            document.getElementById('totalMinutes').textContent = stats.totalMinutes;
+            document.getElementById('streakDays').textContent = stats.streakDays;
+        }
+
+        // 视图切换
+        function showView(viewId) {
+            document.getElementById('backBtn').style.display = viewId === 'home' ? 'none' : 'block';
+            document.querySelector('.bottom-nav').style.display = viewId === 'home' ? 'flex' : 'none';
+            
+            ['homeView', 'breathView', 'timerView', 'preceptView', 'statsView'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById(viewId).style.display = 'block';
+            currentView = viewId;
+        }
+
+        function showHome() {
+            showView('homeView');
+        }
+
+        function showBreath() {
+            showView('breathView');
+        }
+
+        function showTimer() {
+            showView('timerView');
+        }
+
+        function showPrecepts() {
+            showView('preceptView');
+        }
+
+        function showStats() {
+            showView('statsView');
+        }
+
+        function goBack() {
+            stopBreath();
+            stopTimer();
+            showHome();
+        }
+
+        // 呼吸练习
+        function toggleBreath() {
+            if (breathInProgress) {
+                stopBreath();
+            } else {
+                startBreath();
+            }
+        }
+
+        function startBreath() {
+            breathInProgress = true;
+            breathStartTime = Date.now();
+            breathCyclesCompleted = 0;
+            document.getElementById('startBreathBtn').textContent = '暂停';
+            breathCycle();
+            breathInterval = setInterval(breathCycle, 8000); // 8 秒一个循环
+        }
+
+        function stopBreath() {
+            breathInProgress = false;
+            document.getElementById('startBreathBtn').textContent = '继续';
+            clearInterval(breathInterval);
+            
+            // 显示修习反馈
+            if (breathStartTime) {
+                const duration = Math.floor((Date.now() - breathStartTime) / 1000);
+                const cycles = breathCyclesCompleted;
+                showBreathFeedback(duration, cycles);
+            }
+        }
+
+        // 呼吸练习反馈
+        function showBreathFeedback(duration, cycles) {
+            const modal = document.getElementById('completionModal');
+            const title = modal.querySelector('.completion-title');
+            const text = modal.querySelector('.completion-text');
+            
+            title.textContent = '修习圆满';
+            text.innerHTML = `本次修习 ${duration} 秒<br>完成 ${cycles} 次呼吸循环`;
+            
+            modal.style.display = 'flex';
+            
+            // 记录修习数据
+            stats.totalMinutes += Math.floor(duration / 60);
+            updateStats();
+            saveStats();
+        }
+
+        function breathCycle() {
+            const circle = document.getElementById('breathCircle');
+            const instruction = document.getElementById('breathInstruction');
+            
+            if (isInhaling) {
+                instruction.textContent = '吸气';
+                circle.classList.add('expand');
+                circle.classList.remove('contract');
+                setTimeout(() => {
+                    instruction.textContent = '屏息';
+                }, 4000);
+            } else {
+                instruction.textContent = '呼气';
+                circle.classList.remove('expand');
+                circle.classList.add('contract');
+                breathCount = breathCount > 9 ? 1 : breathCount + 1;
+                circle.textContent = breathCount;
+                document.getElementById('currentCount').textContent = breathCount;
+                breathCyclesCompleted++;
+            }
+            
+            isInhaling = !isInhaling;
+        }
+
+        // 计时器
+        function setDuration(minutes) {
+            stopTimer();
+            timerDuration = minutes * 60;
+            timerRemaining = timerDuration;
+            updateTimerDisplay();
+            
+            document.querySelectorAll('.duration-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function selectMethod(el, method) {
+            currentMethod = method;
+            currentSelectedMethod = method;
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            el.classList.add('active');
+            document.getElementById('timerMethod').textContent = method;
+        }
+
+        // 显示法门要领
+        function showMethodGuide() {
+            const guide = methodGuides[currentSelectedMethod];
+            if (!guide) return;
+            
+            document.getElementById('guideIcon').textContent = guide.icon;
+            document.getElementById('guideTitle').textContent = guide.title;
+            document.getElementById('guideContent').innerHTML = guide.content;
+            document.getElementById('guideModal').style.display = 'flex';
+        }
+
+        // 关闭法门要领
+        function closeGuide() {
+            document.getElementById('guideModal').style.display = 'none';
+        }
+
+        function toggleTimer() {
+            if (timerRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            timerRunning = true;
+            document.getElementById('startTimerBtn').textContent = '暂停';
+            
+            // 播放开始钟声
+            playBell();
+            
+            timerInterval = setInterval(() => {
+                timerRemaining--;
+                updateTimerDisplay();
+                
+                if (timerRemaining <= 0) {
+                    stopTimer();
+                    playBell(); // 播放结束钟声
+                    showCompletion();
+                    // 更新统计
+                    const minutes = Math.floor(timerDuration / 60);
+                    stats.totalMinutes += minutes;
+                    updateStats();
+                    saveStats();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            timerRunning = false;
+            document.getElementById('startTimerBtn').textContent = '继续';
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerRemaining = timerDuration;
+            updateTimerDisplay();
+            document.getElementById('startTimerBtn').textContent = '开始';
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerRemaining / 60);
+            const secs = timerRemaining % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            if (stats.lastPracticeDate !== today) {
+                if (stats.lastPracticeDate) {
+                    const lastDate = new Date(stats.lastPracticeDate);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays === 1) {
+                        stats.streakDays++;
+                    } else if (diffDays > 1) {
+                        stats.streakDays = 1;
+                    }
+                } else {
+                    stats.streakDays = 1;
+                }
+                stats.totalDays++;
+                stats.lastPracticeDate = today;
+            }
+            updateStatsDisplay();
+        }
+
+        // 完成提示
+        function showCompletion() {
+            document.getElementById('completionModal').style.display = 'flex';
+            // 播放结束钟声（可选）
+        }
+
+        function closeModal() {
+            document.getElementById('completionModal').style.display = 'none';
+        }
+
+        // 播放钟声（Web Audio API）
+        function playBell() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 创建振荡器（钟声）
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // 钟声频率（类似引磬）
+                oscillator.frequency.value = 528; // 528Hz 是"爱"的频率
+                oscillator.type = 'sine';
+                
+                // 音量包络（渐弱）
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 2);
+                
+                // 0.5 秒后再响一次（余音）
+                setTimeout(() => {
+                    const oscillator2 = audioContext.createOscillator();
+                    const gainNode2 = audioContext.createGain();
+                    
+                    oscillator2.connect(gainNode2);
+                    gainNode2.connect(audioContext.destination);
+                    
+                    oscillator2.frequency.value = 528;
+                    oscillator2.type = 'sine';
+                    
+                    gainNode2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+                    
+                    oscillator2.start(audioContext.currentTime);
+                    oscillator2.stop(audioContext.currentTime + 1.5);
+                }, 500);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        // 保存戒律状态（辅助函数）
+        function savePreceptState() {
+            const todayStr = new Date().toDateString();
+            const checkedIndices = [];
+            document.querySelectorAll('.precept-check').forEach((el, i) => {
+                if (el.classList.contains('checked')) {
+                    checkedIndices.push(i);
+                }
+            });
+            localStorage.setItem('xiuxin_precepts_' + todayStr, JSON.stringify(checkedIndices));
+        }
+    </script>
+</body>
+</html>

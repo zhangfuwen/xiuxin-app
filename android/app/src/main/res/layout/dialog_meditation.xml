@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⏱️ 冥想计时"
+        android:textSize="22sp"
+        android:textColor="#5a4a42"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/meditationTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="05:00"
+        android:textSize="48sp"
+        android:textColor="#8b7355"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/meditationStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🙏 正在修习中..."
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/stopMeditationBtn"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="结束修习"
+        android:textSize="16sp"
+        android:background="@drawable/button_primary"
+        android:textColor="#ffffff" />
+
+</LinearLayout>

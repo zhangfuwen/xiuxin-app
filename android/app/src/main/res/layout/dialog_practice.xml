@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✅ 今日功课"
+        android:textSize="22sp"
+        android:textColor="#5a4a42"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/practice_background"
+        android:padding="20dp"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:id="@+id/preceptText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="今日不杀生（包括不恶语）"
+            android:textSize="20sp"
+            android:textColor="#8b7355"
+            android:textStyle="bold"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/practiceStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🙏 今日功课，请精进完成"
+        android:textSize="15sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/completeBtn"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="完成打卡"
+        android:textSize="16sp"
+        android:background="@drawable/button_primary"
+        android:textColor="#ffffff" />
+
+</LinearLayout>
