@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.xiuxin.app.R;
+import com.xiuxin.app.model.Blessing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         public int favoriteCount;
         public boolean isLiked;
         public boolean isFavorite;
+        public int id; // API ID
 
         public BlessingItem(String text, String source, String practice, String category) {
             this.text = text;
@@ -35,6 +37,20 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             this.favoriteCount = (int) (Math.random() * 1000) + 50;
             this.isLiked = false;
             this.isFavorite = false;
+            this.id = 0;
+        }
+        
+        /**
+         * 从 API 模型创建
+         */
+        public static BlessingItem fromApiModel(Blessing blessing) {
+            BlessingItem item = new BlessingItem(blessing.text, blessing.source, blessing.practice, blessing.category);
+            item.id = blessing.id;
+            item.likeCount = blessing.likeCount;
+            item.favoriteCount = blessing.favoriteCount;
+            item.isLiked = blessing.isLiked;
+            item.isFavorited = blessing.isFavorited;
+            return item;
         }
     }
 

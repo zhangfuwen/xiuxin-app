@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -20,6 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.xiuxin.app.R;
 import com.xiuxin.app.activity.BlessingDetailActivity;
 import com.xiuxin.app.adapter.BlessingAdapter;
+import com.xiuxin.app.api.BlessingsApiClient;
+import com.xiuxin.app.dialog.PublishBlessingDialog;
+import com.xiuxin.app.model.Blessing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +32,20 @@ public class BlessingFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private Spinner categorySpinner;
+    private Button btnPublish;
     private BlessingAdapter adapter;
     private SharedPreferences prefs;
     private String selectedCategory = "全部";
-
+    private BlessingsApiClient apiClient;
+    private View loadingView;
+    
     private final String[] categories = {"全部", "禅宗", "儒家", "道家", "佛经"};
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         prefs = context.getSharedPreferences("xiuxin", Context.MODE_PRIVATE);
+        apiClient = BlessingsApiClient.getInstance();
     }
 
     @Nullable
@@ -52,6 +60,17 @@ public class BlessingFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.blessingRecyclerView);
         categorySpinner = view.findViewById(R.id.categorySpinner);
+        btnPublish = view.findViewById(R.id.btnPublish);
+        loadingView = view.findViewById(R.id.loadingView);
+        
+        if (loadingView == null) {
+            // 如果布局中没有 loadingView，创建一个
+            loadingView = new View(getContext());
+            loadingView.setVisibility(View.VISIBLE);
+        }
+        
+        // Setup publish button
+        btnPublish.setOnClickListener(v -> showPublishDialog());
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -70,7 +89,7 @@ public class BlessingFragment extends Fragment {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
                 selectedCategory = categories[position];
-                filterBlessings();
+                loadBlessingsFromApi();
             }
 
             @Override
@@ -92,24 +111,96 @@ public class BlessingFragment extends Fragment {
 
             @Override
             public void onLikeClick(BlessingAdapter.BlessingItem item, int position) {
-                if (item.isLiked) {
+                if (item.id > 0) {
+                    // API 模式：调用点赞接口
+                    apiClient.toggleLike(item.id, new BlessingsApiClient.ApiCallback<BlessingsApiClient.InteractionResult>() {
+                        @Override
+                        public void onSuccess(BlessingsApiClient.InteractionResult result) {
+                            item.isLiked = result.active;
+                            item.likeCount = result.count;
+                            adapter.notifyItemChanged(position);
+                            Toast.makeText(getContext(), item.isLiked ? "❤️ 已点赞" : "取消点赞", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(getContext(), "点赞失败：" + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    // 离线模式
                     Toast.makeText(getContext(), "❤️ 感恩", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFavoriteClick(BlessingAdapter.BlessingItem item, int position) {
-                if (item.isFavorite) {
+                if (item.id > 0) {
+                    // API 模式：调用收藏接口
+                    apiClient.toggleFavorite(item.id, new BlessingsApiClient.ApiCallback<BlessingsApiClient.InteractionResult>() {
+                        @Override
+                        public void onSuccess(BlessingsApiClient.InteractionResult result) {
+                            item.isFavorited = result.active;
+                            item.favoriteCount = result.count;
+                            adapter.notifyItemChanged(position);
+                            Toast.makeText(getContext(), item.isFavorited ? "⭐ 已收藏" : "取消收藏", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(getContext(), "收藏失败：" + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    // 离线模式
                     Toast.makeText(getContext(), "⭐ 已收藏", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        // Load blessings
-        loadBlessings();
+        // Load blessings from API
+        loadBlessingsFromApi();
     }
+    
+    /**
+     * 从 API 加载禅语
+     */
+    private void loadBlessingsFromApi() {
+        showLoading(true);
+        
+        apiClient.getBlessings(selectedCategory.equals("全部") ? null : selectedCategory, 20, 
+            new BlessingsApiClient.ApiCallback<List<Blessing>>() {
+                @Override
+                public void onSuccess(List<Blessing> blessings) {
+                    showLoading(false);
+                    updateAdapter(blessings);
+                }
 
-    private void loadBlessings() {
+                @Override
+                public void onError(String error) {
+                    showLoading(false);
+                    Toast.makeText(getContext(), "加载失败：" + error, Toast.LENGTH_LONG).show();
+                    // 降级：显示本地数据
+                    loadLocalBlessings();
+                }
+            });
+    }
+    
+    /**
+     * 更新 Adapter 数据
+     */
+    private void updateAdapter(List<Blessing> blessings) {
+        List<BlessingAdapter.BlessingItem> items = new ArrayList<>();
+        for (Blessing blessing : blessings) {
+            items.add(BlessingAdapter.BlessingItem.fromApiModel(blessing));
+        }
+        adapter.setBlessings(items);
+    }
+    
+    /**
+     * 加载本地禅语（降级方案）
+     */
+    private void loadLocalBlessings() {
         List<BlessingAdapter.BlessingItem> blessings = new ArrayList<>();
 
         blessings.add(new BlessingAdapter.BlessingItem(
@@ -147,53 +238,43 @@ public class BlessingFragment extends Fragment {
             "禅宗"
         ));
 
-        blessings.add(new BlessingAdapter.BlessingItem(
-            "宠辱不惊，看庭前花开花落；去留无意，望天上云卷云舒。",
-            "陈继儒",
-            "得失随缘，心无增减。今日练习：今天遇到赞美或批评时，都当作耳边风。",
-            "禅宗"
-        ));
-
-        blessings.add(new BlessingAdapter.BlessingItem(
-            "知止而后有定，定而后能静，静而后能安，安而后能虑，虑而后能得。",
-            "《大学》",
-            "知止是智慧的第一步。今日练习：在说话或行动前，停顿三秒，问'这是必要的吗？'",
-            "儒家"
-        ));
-
-        blessings.add(new BlessingAdapter.BlessingItem(
-            "上善若水，水善利万物而不争。",
-            "《道德经》",
-            "柔能克刚，不争而胜。今日练习：今天遇到冲突时，尝试像水一样，绕行而不硬碰。",
-            "道家"
-        ));
-
-        blessings.add(new BlessingAdapter.BlessingItem(
-            "制心一处，无事不办。",
-            "佛经",
-            "专注的力量无穷。今日练习：选择一件事，用 100% 的注意力完成它。",
-            "佛经"
-        ));
-
-        blessings.add(new BlessingAdapter.BlessingItem(
-            "日日是好日。",
-            "禅宗公案",
-            "好坏皆由心生。今日练习：无论今天发生什么，睡前都说'今天是好日'。",
-            "禅宗"
-        ));
-
         adapter.setBlessings(blessings);
     }
-
-    private void filterBlessings() {
-        // In a real app, this would filter the list
-        // For now, just reload all
-        loadBlessings();
+    
+    /**
+     * 显示/隐藏加载状态
+     */
+    private void showLoading(boolean show) {
+        if (loadingView != null) {
+            loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         // Refresh data when returning to fragment
+        loadBlessingsFromApi();
+    }
+    
+    /**
+     * 显示发布对话框
+     */
+    private void showPublishDialog() {
+        PublishBlessingDialog dialog = new PublishBlessingDialog(getContext());
+        dialog.setOnPublishListener(new PublishBlessingDialog.OnPublishListener() {
+            @Override
+            public void onPublishSuccess(Blessing blessing) {
+                // Refresh the list
+                loadBlessingsFromApi();
+            }
+
+            @Override
+            public void onPublishError(String error) {
+                // Error already shown in dialog
+            }
+        });
+        dialog.show();
     }
 }
