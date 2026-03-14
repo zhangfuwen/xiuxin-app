@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,10 @@ public class BlessingFragment extends Fragment {
     private String selectedCategory = "全部";
     private BlessingsApiClient apiClient;
     private View loadingView;
+    private View emptyView;
+    private View errorView;
+    private TextView errorText, errorDetail;
+    private Button btnRetry;
     
     private final String[] categories = {"全部", "禅宗", "儒家", "道家", "佛经"};
 
@@ -62,15 +67,17 @@ public class BlessingFragment extends Fragment {
         categorySpinner = view.findViewById(R.id.categorySpinner);
         btnPublish = view.findViewById(R.id.btnPublish);
         loadingView = view.findViewById(R.id.loadingView);
-        
-        if (loadingView == null) {
-            // 如果布局中没有 loadingView，创建一个
-            loadingView = new View(getContext());
-            loadingView.setVisibility(View.VISIBLE);
-        }
+        emptyView = view.findViewById(R.id.emptyView);
+        errorView = view.findViewById(R.id.errorView);
+        errorText = view.findViewById(R.id.errorText);
+        errorDetail = view.findViewById(R.id.errorDetail);
+        btnRetry = view.findViewById(R.id.btnRetry);
         
         // Setup publish button
         btnPublish.setOnClickListener(v -> showPublishDialog());
+        
+        // Setup retry button
+        btnRetry.setOnClickListener(v -> loadBlessingsFromApi());
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -173,17 +180,34 @@ public class BlessingFragment extends Fragment {
                 @Override
                 public void onSuccess(List<Blessing> blessings) {
                     showLoading(false);
-                    updateAdapter(blessings);
+                    if (blessings.isEmpty()) {
+                        showEmptyState("暂无内容", "点击上方\"发布\"按钮分享你的感悟");
+                    } else {
+                        updateAdapter(blessings);
+                    }
                 }
 
                 @Override
                 public void onError(String error) {
                     showLoading(false);
-                    Toast.makeText(getContext(), "加载失败：" + error, Toast.LENGTH_LONG).show();
-                    // 降级：显示本地数据
-                    loadLocalBlessings();
+                    showErrorState("加载失败", getErrorMessage(error));
                 }
             });
+    }
+    
+    /**
+     * 获取友好的错误消息
+     */
+    private String getErrorMessage(String error) {
+        if (error.contains("网络") || error.contains("Network") || error.contains("timeout")) {
+            return "网络连接失败，请检查网络设置";
+        } else if (error.contains("404") || error.contains("not found")) {
+            return "服务器未找到，请稍后重试";
+        } else if (error.contains("500")) {
+            return "服务器错误，请稍后重试";
+        } else {
+            return "加载失败：" + error;
+        }
     }
     
     /**
@@ -195,6 +219,7 @@ public class BlessingFragment extends Fragment {
             items.add(BlessingAdapter.BlessingItem.fromApiModel(blessing));
         }
         adapter.setBlessings(items);
+        showContentState();
     }
     
     /**
@@ -239,6 +264,7 @@ public class BlessingFragment extends Fragment {
         ));
 
         adapter.setBlessings(blessings);
+        showContentState();
     }
     
     /**
@@ -248,7 +274,53 @@ public class BlessingFragment extends Fragment {
         if (loadingView != null) {
             loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
         }
+        if (emptyView != null) {
+            emptyView.setVisibility(View.GONE);
+        }
+        if (errorView != null) {
+            errorView.setVisibility(View.GONE);
+        }
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+    
+    /**
+     * 显示空状态
+     */
+    private void showEmptyState(String title, String message) {
+        if (loadingView != null) loadingView.setVisibility(View.GONE);
+        if (errorView != null) errorView.setVisibility(View.GONE);
+        if (recyclerView != null) recyclerView.setVisibility(View.GONE);
+        
+        if (emptyView != null) {
+            TextView emptyText = view.findViewById(R.id.emptyText);
+            if (emptyText != null) emptyText.setText(title);
+            emptyView.setVisibility(View.VISIBLE);
+        }
+    }
+    
+    /**
+     * 显示错误状态
+     */
+    private void showErrorState(String title, String detail) {
+        if (loadingView != null) loadingView.setVisibility(View.GONE);
+        if (emptyView != null) emptyView.setVisibility(View.GONE);
+        if (recyclerView != null) recyclerView.setVisibility(View.GONE);
+        
+        if (errorView != null) {
+            if (errorText != null) errorText.setText(title);
+            if (errorDetail != null) errorDetail.setText(detail);
+            errorView.setVisibility(View.VISIBLE);
+        }
+    }
+    
+    /**
+     * 显示内容状态
+     */
+    private void showContentState() {
+        if (loadingView != null) loadingView.setVisibility(View.GONE);
+        if (emptyView != null) emptyView.setVisibility(View.GONE);
+        if (errorView != null) errorView.setVisibility(View.GONE);
+        if (recyclerView != null) recyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
