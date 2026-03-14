@@ -292,7 +292,7 @@ public class BlessingFragment extends Fragment {
         if (recyclerView != null) recyclerView.setVisibility(View.GONE);
         
         if (emptyView != null) {
-            TextView emptyText = view.findViewById(R.id.emptyText);
+            TextView emptyText = emptyView.findViewById(R.id.emptyText);
             if (emptyText != null) emptyText.setText(title);
             emptyView.setVisibility(View.VISIBLE);
         }
