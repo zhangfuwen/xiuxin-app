@@ -49,7 +49,7 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             item.likeCount = blessing.likeCount;
             item.favoriteCount = blessing.favoriteCount;
             item.isLiked = blessing.isLiked;
-            item.isFavorited = blessing.isFavorited;
+            item.isFavorite = blessing.isFavorited;
             return item;
         }
     }

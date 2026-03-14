@@ -38,7 +38,7 @@ public class PublishBlessingDialog extends Dialog {
     private final String[] categories = {"禅宗", "儒家", "道家", "佛经"};
     
     public PublishBlessingDialog(@NonNull Context context) {
-        super(context, R.style.Theme_Design_Light_BottomSheetDialog);
+        super(context, android.R.style.Theme_Material_Light_Dialog_Alert);
         apiClient = BlessingsApiClient.getInstance();
     }
     

@@ -140,10 +140,10 @@ public class BlessingFragment extends Fragment {
                     apiClient.toggleFavorite(item.id, new BlessingsApiClient.ApiCallback<BlessingsApiClient.InteractionResult>() {
                         @Override
                         public void onSuccess(BlessingsApiClient.InteractionResult result) {
-                            item.isFavorited = result.active;
+                            item.isFavorite = result.active;
                             item.favoriteCount = result.count;
                             adapter.notifyItemChanged(position);
-                            Toast.makeText(getContext(), item.isFavorited ? "⭐ 已收藏" : "取消收藏", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), item.isFavorite ? "⭐ 已收藏" : "取消收藏", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
