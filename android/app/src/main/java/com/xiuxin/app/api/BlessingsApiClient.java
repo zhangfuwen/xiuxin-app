@@ -23,7 +23,9 @@ import com.xiuxin.app.model.Comment;
 public class BlessingsApiClient {
     
     private static final String TAG = "BlessingsApiClient";
-    private static final String BASE_URL = "http://bot.xjbcode.fun/api/blessings";
+    // Use public IP directly to avoid DNS issues, fallback to domain if needed
+    private static final String BASE_URL = "http://47.254.68.82/api/blessings";
+    // private static final String BASE_URL = "http://bot.xjbcode.fun/api/blessings";
     
     private static BlessingsApiClient instance;
     private final ExecutorService executor;
@@ -77,7 +79,9 @@ public class BlessingsApiClient {
                     urlStr += "&user_id=" + currentUserId;
                 }
                 
+                Log.d(TAG, "Fetching blessings from: " + urlStr);
                 String response = httpGet(urlStr);
+                Log.d(TAG, "Response: " + response.substring(0, Math.min(200, response.length())));
                 JSONObject json = new JSONObject(response);
                 
                 if (json.optBoolean("success", false)) {
@@ -97,7 +101,7 @@ public class BlessingsApiClient {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error getting blessings", e);
-                postError(callback, "网络错误：" + e.getMessage());
+                postError(callback, "网络错误：" + e.getMessage() + " (请检查网络连接)");
             }
         });
     }
