@@ -38,4 +38,10 @@ dependencies {
     
     // Video player for 导引术
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    
+    // Google Sign-In (for Google login)
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    
+    // WeChat SDK (for WeChat login) - uncomment when ready
+    // implementation 'com.tencent.mm.opensdk:wechat-sdk-android:6.8.0'
 }
