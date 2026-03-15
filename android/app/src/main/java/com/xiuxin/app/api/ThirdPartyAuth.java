@@ -29,7 +29,9 @@ public class ThirdPartyAuth {
     
     // 邮箱验证码（需要后端服务）
     // 可以使用：SendGrid, Mailgun, 阿里云邮件推送等
-    private static final String EMAIL_VERIFICATION_API = "https://your-backend.com/api/auth/send-code";
+    // private static final String EMAIL_VERIFICATION_API = "https://your-backend.com/api/auth/send-code";
+    // 本地测试用后端
+    private static final String BACKEND_BASE_URL = "http://47.254.68.82:3000";
 
     public interface AuthCallback {
         void onSuccess(User user, String token);
@@ -188,7 +190,7 @@ public class ThirdPartyAuth {
 
     /**
      * 发送邮箱验证码
-     * 需要后端服务支持
+     * 调用后端 API 发送
      */
     public void sendEmailCode(String email, AuthCallback callback) {
         // 验证邮箱格式
@@ -201,25 +203,55 @@ public class ThirdPartyAuth {
             try {
                 Log.d(TAG, "Sending verification code to: " + email);
                 
-                // TODO: 调用后端 API 发送验证码
+                // 调用后端 API
                 // POST /api/auth/send-code
-                // Body: { "email": "user@example.com" }
+                java.net.URL url = new java.net.URL(BACKEND_BASE_URL + "/api/auth/send-code");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
                 
-                // 模拟成功（实际应该调用后端 API）
-                // 验证码应该发送到用户邮箱
-                String mockCode = "123456";
-                prefs.edit().putString("email_verify_code", mockCode).apply();
+                // 发送请求体
+                String jsonBody = "{\"email\":\"" + email + "\"}";
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonBody.getBytes("UTF-8");
+                    os.write(input, 0, input.length);
+                }
                 
-                callback.onSuccess(null, "验证码已发送到 " + email);
+                int responseCode = conn.getResponseCode();
+                String response;
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(conn.getInputStream(), "UTF-8"))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    response = sb.toString();
+                }
+                
+                if (responseCode == 200) {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    String message = jsonResponse.optString("message", "验证码已发送");
+                    callback.onSuccess(null, message);
+                } else {
+                    JSONObject errorResponse = new JSONObject(response);
+                    callback.onError(errorResponse.optString("error", "发送失败"));
+                }
+                
+                conn.disconnect();
             } catch (Exception e) {
                 Log.e(TAG, "Send email code error", e);
-                callback.onError("发送失败：" + e.getMessage());
+                callback.onError("网络错误：" + e.getMessage());
             }
         }).start();
     }
 
     /**
      * 邮箱验证码登录
+     * 调用后端 API 验证并登录
      */
     public void loginWithEmail(String email, String code, AuthCallback callback) {
         // 验证邮箱格式
@@ -228,40 +260,71 @@ public class ThirdPartyAuth {
             return;
         }
         
-        // 验证验证码
-        String savedCode = prefs.getString("email_verify_code", "");
-        if (!savedCode.equals(code)) {
-            callback.onError("验证码不正确，请重试");
-            return;
-        }
-        
         new Thread(() -> {
             try {
                 Log.d(TAG, "Email login: " + email);
                 
-                // TODO: 调用后端验证并登录
+                // 调用后端 API
                 // POST /api/auth/email-login
-                // Body: { "email": "user@example.com", "code": "123456" }
+                java.net.URL url = new java.net.URL(BACKEND_BASE_URL + "/api/auth/email-login");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
                 
-                // 创建用户
-                User user = new User();
-                user.id = "email_user_" + email.hashCode();
-                user.name = email.split("@")[0]; // 使用邮箱前缀作为用户名
-                user.email = email;
-                user.avatar = "";
-                user.provider = "email";
+                // 发送请求体
+                String jsonBody = "{\"email\":\"" + email + "\",\"code\":\"" + code + "\"}";
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonBody.getBytes("UTF-8");
+                    os.write(input, 0, input.length);
+                }
                 
-                String token = "mock_email_token_" + System.currentTimeMillis();
+                int responseCode = conn.getResponseCode();
+                String response;
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(conn.getInputStream(), "UTF-8"))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    response = sb.toString();
+                }
                 
-                saveLoginState(user, token);
+                if (responseCode == 200) {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONObject data = jsonResponse.optJSONObject("data");
+                    if (data != null) {
+                        JSONObject userJson = data.optJSONObject("user");
+                        String token = data.optString("token", "");
+                        
+                        if (userJson != null) {
+                            User user = new User();
+                            user.id = userJson.optString("id", "");
+                            user.name = userJson.optString("name", email.split("@")[0]);
+                            user.email = userJson.optString("email", email);
+                            user.avatar = userJson.optString("avatar", "");
+                            user.provider = userJson.optString("provider", "email");
+                            
+                            saveLoginState(user, token);
+                            callback.onSuccess(user, token);
+                        } else {
+                            callback.onError("登录失败：用户数据为空");
+                        }
+                    } else {
+                        callback.onError("登录失败：响应数据格式错误");
+                    }
+                } else {
+                    JSONObject errorResponse = new JSONObject(response);
+                    callback.onError(errorResponse.optString("error", "登录失败"));
+                }
                 
-                // 清除验证码
-                prefs.edit().remove("email_verify_code").apply();
-                
-                callback.onSuccess(user, token);
+                conn.disconnect();
             } catch (Exception e) {
                 Log.e(TAG, "Email login error", e);
-                callback.onError("登录失败：" + e.getMessage());
+                callback.onError("网络错误：" + e.getMessage());
             }
         }).start();
     }
