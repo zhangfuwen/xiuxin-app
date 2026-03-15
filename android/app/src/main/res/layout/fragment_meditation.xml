@@ -200,12 +200,50 @@
             android:textColor="#8b7355"
             android:visibility="gone" />
 
+        <!-- Pinned Methods Section -->
+        <TextView
+            android:id="@+id/pinnedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📌 我的常用法门"
+            android:textSize="16sp"
+            android:textColor="#5a4a42"
+            android:textStyle="bold"
+            android:layout_gravity="start"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/pinnedRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:nestedScrollingEnabled="false" />
+
+        <!-- All Methods Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📚 全部法门"
+            android:textSize="16sp"
+            android:textColor="#5a4a42"
+            android:textStyle="bold"
+            android:layout_gravity="start"
+            android:layout_marginBottom="12dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/methodsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:nestedScrollingEnabled="false" />
+
         <!-- Stats -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="20dp"
             android:padding="16dp"
             android:background="@drawable/stats_card">
 
