@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.xiuxin.app.MainActivity;
 import com.xiuxin.app.R;
 import com.xiuxin.app.api.ThirdPartyAuth;
 import com.xiuxin.app.model.User;
