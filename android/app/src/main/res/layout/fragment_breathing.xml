@@ -1,52 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="🧘 呼吸练习"
-        android:textSize="24sp"
-        android:textColor="#5a4a42"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center_horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="观呼吸，安住当下"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:layout_marginBottom="32dp" />
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🌬️ 呼吸法门"
+            android:textSize="26sp"
+            android:textColor="#5a4a42"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp" />
 
-    <View
-        android:id="@+id/breathingCircle"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:background="@drawable/breathing_circle"
-        android:layout_marginBottom="32dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="一呼一吸，即是修行"
+            android:textSize="14sp"
+            android:textColor="#888888"
+            android:layout_marginBottom="30dp" />
 
-    <TextView
-        android:id="@+id/breathingInstruction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="准备开始"
-        android:textSize="28sp"
-        android:textColor="#8b7355"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp" />
+        <!-- Breathing Circle with Progress -->
+        <FrameLayout
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_marginBottom="24dp">
 
-    <Button
-        android:id="@+id/startBreathingBtn"
-        android:layout_width="200dp"
-        android:layout_height="56dp"
-        android:text="开始练习"
-        android:textSize="18sp"
-        android:background="@drawable/button_primary"
-        android:textColor="#ffffff" />
+            <!-- Outer glow ring -->
+            <View
+                android:id="@+id/breathingCircleOuter"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:background="@drawable/breathing_circle_outer" />
 
-</LinearLayout>
+            <!-- Inner breathing circle -->
+            <View
+                android:id="@+id/breathingCircle"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:background="@drawable/breathing_circle" />
+
+            <!-- Center instruction -->
+            <TextView
+                android:id="@+id/breathingInstruction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="准备"
+                android:textSize="28sp"
+                android:textColor="#ffffff"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- Breathing Phase Indicator -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/phaseInhale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● 吸气"
+                android:textSize="14sp"
+                android:textColor="#8b7355"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/phaseHold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● 屏息"
+                android:textSize="14sp"
+                android:textColor="#ccc"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/phaseExhale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● 呼气"
+                android:textSize="14sp"
+                android:textColor="#ccc" />
+        </LinearLayout>
+
+        <!-- Breathing Guide Text -->
+        <TextView
+            android:id="@+id/breathingGuide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="点击开始按钮，跟随引导进行 4-7-8 呼吸法"
+            android:textSize="15sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="30dp" />
+
+        <!-- Mode Selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选择呼吸法"
+            android:textSize="14sp"
+            android:textColor="#8b7355"
+            android:textStyle="bold"
+            android:layout_gravity="start"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/mode478Btn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="4-7-8 放松呼吸法"
+                android:textSize="15sp"
+                android:background="@drawable/button_primary"
+                android:textColor="#ffffff"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/modeBoxBtn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="方箱呼吸法 (4-4-4-4)"
+                android:textSize="15sp"
+                android:background="@drawable/button_primary"
+                android:textColor="#ffffff"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/modeCoherentBtn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="共振呼吸法 (5-5)"
+                android:textSize="15sp"
+                android:background="@drawable/button_primary"
+                android:textColor="#ffffff"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/modeCustomBtn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="自定义呼吸法"
+                android:textSize="15sp"
+                android:background="@drawable/button_secondary"
+                android:textColor="#8b7355" />
+        </LinearLayout>
+
+        <!-- Control Button -->
+        <Button
+            android:id="@+id/startBreathingBtn"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="开始练习"
+            android:textSize="18sp"
+            android:background="@drawable/button_primary"
+            android:textColor="#ffffff"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Session Counter -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="@drawable/stats_card">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/totalBreaths"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="24sp"
+                    android:textColor="#8b7355"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="呼吸次数"
+                    android:textSize="12sp"
+                    android:textColor="#999" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#eee" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/totalMinutes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="24sp"
+                    android:textColor="#8b7355"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="练习分钟"
+                    android:textSize="12sp"
+                    android:textColor="#999" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Benefits Info -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💡 4-7-8 呼吸法功效：缓解焦虑、帮助入眠、平静心神"
+            android:textSize="13sp"
+            android:textColor="#999999"
+            android:gravity="center"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/info_card" />
+
+    </LinearLayout>
+</ScrollView>
