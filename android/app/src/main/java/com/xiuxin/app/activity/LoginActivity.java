@@ -3,11 +3,15 @@ package com.xiuxin.app.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.xiuxin.app.MainActivity;
@@ -26,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     
     private Button btnGoogleLogin;
     private Button btnWeChatLogin;
+    private Button btnEmailLogin;
     private Button btnSkipLogin;
     private TextView configWarning;
     
@@ -40,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         
         btnGoogleLogin = findViewById(R.id.btnGoogleLogin);
         btnWeChatLogin = findViewById(R.id.btnWeChatLogin);
+        btnEmailLogin = findViewById(R.id.btnEmailLogin);
         btnSkipLogin = findViewById(R.id.btnSkipLogin);
         configWarning = findViewById(R.id.configWarning);
         
@@ -66,6 +72,9 @@ public class LoginActivity extends AppCompatActivity {
             }
             loginWithWeChat();
         });
+        
+        // 邮箱登录按钮
+        btnEmailLogin.setOnClickListener(v -> showEmailLoginDialog());
         
         // 跳过登录
         btnSkipLogin.setOnClickListener(v -> {
@@ -121,6 +130,92 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+    
+    /**
+     * 显示邮箱登录对话框
+     */
+    private void showEmailLoginDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_email_login, null);
+        
+        EditText emailInput = dialogView.findViewById(R.id.emailInput);
+        EditText codeInput = dialogView.findViewById(R.id.codeInput);
+        LinearLayout codeInputLayout = dialogView.findViewById(R.id.codeInputLayout);
+        Button btnSendCode = dialogView.findViewById(R.id.btnSendCode);
+        Button btnEmailLogin = dialogView.findViewById(R.id.btnEmailLogin);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView codeHint = dialogView.findViewById(R.id.codeHint);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create();
+        
+        // 发送验证码
+        btnSendCode.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            if (email.isEmpty()) {
+                Toast.makeText(this, "请输入邮箱地址", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            btnSendCode.setEnabled(false);
+            btnSendCode.setText("发送中...");
+            
+            auth.sendEmailCode(email, new ThirdPartyAuth.AuthCallback() {
+                @Override
+                public void onSuccess(User user, String result) {
+                    btnSendCode.setText("已发送 (30s)");
+                    codeInputLayout.setVisibility(View.VISIBLE);
+                    codeHint.setVisibility(View.VISIBLE);
+                    Toast.makeText(LoginActivity.this, result, Toast.LENGTH_SHORT).show();
+                    
+                    // 倒计时
+                    new android.os.Handler().postDelayed(() -> {
+                        btnSendCode.setEnabled(true);
+                        btnSendCode.setText("重新发送");
+                    }, 30000);
+                }
+                
+                @Override
+                public void onError(String error) {
+                    btnSendCode.setEnabled(true);
+                    btnSendCode.setText("发送验证码");
+                    Toast.makeText(LoginActivity.this, error, Toast.LENGTH_LONG).show();
+                }
+            });
+        });
+        
+        // 邮箱登录
+        btnEmailLogin.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            String code = codeInput.getText().toString().trim();
+            
+            if (email.isEmpty() || code.isEmpty()) {
+                Toast.makeText(this, "请输入邮箱和验证码", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            auth.loginWithEmail(email, code, new ThirdPartyAuth.AuthCallback() {
+                @Override
+                public void onSuccess(User user, String token) {
+                    Toast.makeText(LoginActivity.this, 
+                        "登录成功：欢迎 " + user.name, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    goToMain();
+                }
+                
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(LoginActivity.this, error, Toast.LENGTH_LONG).show();
+                }
+            });
+        });
+        
+        // 取消
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.show();
     }
     
     @Override

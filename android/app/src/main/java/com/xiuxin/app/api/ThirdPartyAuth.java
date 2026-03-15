@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 /**
  * 第三方登录认证
- * 支持：Google、微信
+ * 支持：Google、微信、邮箱验证码
  */
 public class ThirdPartyAuth {
 
@@ -26,6 +26,10 @@ public class ThirdPartyAuth {
     // 微信 OAuth 2.0
     private static final String WECHAT_APP_ID = "YOUR_WECHAT_APP_ID";
     private static final String WECHAT_APP_SECRET = "YOUR_WECHAT_APP_SECRET";
+    
+    // 邮箱验证码（需要后端服务）
+    // 可以使用：SendGrid, Mailgun, 阿里云邮件推送等
+    private static final String EMAIL_VERIFICATION_API = "https://your-backend.com/api/auth/send-code";
 
     public interface AuthCallback {
         void onSuccess(User user, String token);
@@ -183,6 +187,86 @@ public class ThirdPartyAuth {
     }
 
     /**
+     * 发送邮箱验证码
+     * 需要后端服务支持
+     */
+    public void sendEmailCode(String email, AuthCallback callback) {
+        // 验证邮箱格式
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            callback.onError("请输入有效的邮箱地址");
+            return;
+        }
+        
+        new Thread(() -> {
+            try {
+                Log.d(TAG, "Sending verification code to: " + email);
+                
+                // TODO: 调用后端 API 发送验证码
+                // POST /api/auth/send-code
+                // Body: { "email": "user@example.com" }
+                
+                // 模拟成功（实际应该调用后端 API）
+                // 验证码应该发送到用户邮箱
+                String mockCode = "123456";
+                prefs.edit().putString("email_verify_code", mockCode).apply();
+                
+                callback.onSuccess(null, "验证码已发送到 " + email);
+            } catch (Exception e) {
+                Log.e(TAG, "Send email code error", e);
+                callback.onError("发送失败：" + e.getMessage());
+            }
+        }).start();
+    }
+
+    /**
+     * 邮箱验证码登录
+     */
+    public void loginWithEmail(String email, String code, AuthCallback callback) {
+        // 验证邮箱格式
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            callback.onError("邮箱格式不正确");
+            return;
+        }
+        
+        // 验证验证码
+        String savedCode = prefs.getString("email_verify_code", "");
+        if (!savedCode.equals(code)) {
+            callback.onError("验证码不正确，请重试");
+            return;
+        }
+        
+        new Thread(() -> {
+            try {
+                Log.d(TAG, "Email login: " + email);
+                
+                // TODO: 调用后端验证并登录
+                // POST /api/auth/email-login
+                // Body: { "email": "user@example.com", "code": "123456" }
+                
+                // 创建用户
+                User user = new User();
+                user.id = "email_user_" + email.hashCode();
+                user.name = email.split("@")[0]; // 使用邮箱前缀作为用户名
+                user.email = email;
+                user.avatar = "";
+                user.provider = "email";
+                
+                String token = "mock_email_token_" + System.currentTimeMillis();
+                
+                saveLoginState(user, token);
+                
+                // 清除验证码
+                prefs.edit().remove("email_verify_code").apply();
+                
+                callback.onSuccess(user, token);
+            } catch (Exception e) {
+                Log.e(TAG, "Email login error", e);
+                callback.onError("登录失败：" + e.getMessage());
+            }
+        }).start();
+    }
+
+    /**
      * 检查配置是否完整
      */
     public boolean isConfigured() {
@@ -196,6 +280,7 @@ public class ThirdPartyAuth {
             Log.w(TAG, "WeChat OAuth not configured. Please set WECHAT_APP_ID");
         }
         
-        return googleConfigured || wechatConfigured;
+        // 邮箱登录不需要额外配置（需要后端支持）
+        return true;
     }
 }

@@ -74,6 +74,17 @@
             android:background="@drawable/btn_wechat"
             android:layout_marginBottom="16dp" />
 
+        <!-- Email Login Button -->
+        <Button
+            android:id="@+id/btnEmailLogin"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="📧 使用邮箱验证码登录"
+            android:textSize="16sp"
+            android:textColor="#ffffff"
+            android:background="@drawable/btn_email"
+            android:layout_marginBottom="16dp" />
+
         <!-- Divider -->
         <LinearLayout
             android:layout_width="match_parent"
