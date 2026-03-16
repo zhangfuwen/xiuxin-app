@@ -349,6 +349,7 @@ public class BlessingFragment extends Fragment {
         
         // Load comments for first 20 blessings (to avoid too many API calls)
         int maxToLoad = Math.min(allBlessings.size(), 20);
+        final int[] loadedCount = {0};
         
         for (int i = 0; i < maxToLoad; i++) {
             final Blessing blessing = allBlessings.get(i);
@@ -358,35 +359,46 @@ public class BlessingFragment extends Fragment {
                     public void onSuccess(List<Comment> comments) {
                         blessing.comments = comments != null ? comments : new ArrayList<>();
                         Log.d(TAG, "Loaded " + blessing.comments.size() + " comments for blessing id=" + blessing.id);
+                        loadedCount[0]++;
                         
-                        // Update adapter if this blessing is currently displayed
-                        updateAdapterIfVisible(blessing);
+                        // Refresh adapter after all comments loaded
+                        if (loadedCount[0] >= maxToLoad) {
+                            Log.d(TAG, "All comments loaded, refreshing adapter");
+                            applyFilter();
+                        }
                     }
 
                     @Override
                     public void onError(String error) {
                         Log.e(TAG, "Failed to load comments for blessing id=" + blessing.id + ": " + error);
                         blessing.comments = new ArrayList<>();
+                        loadedCount[0]++;
+                        
+                        // Refresh adapter after all comments loaded (even if some failed)
+                        if (loadedCount[0] >= maxToLoad) {
+                            Log.d(TAG, "All comments loaded (with errors), refreshing adapter");
+                            applyFilter();
+                        }
                     }
                 });
             }
         }
     }
     
-    /**
-     * 如果禅语当前在列表中显示，则更新它
-     */
-    private void updateAdapterIfVisible(Blessing blessing) {
-        // Simple approach: just refresh the whole adapter
-        // In production, you'd want to find the specific position and update only that item
-        applyFilter();
-    }
-    
     private void updateAdapter(List<Blessing> blessings) {
         List<BlessingAdapter.BlessingItem> items = new ArrayList<>();
         for (Blessing blessing : blessings) {
             BlessingAdapter.BlessingItem item = BlessingAdapter.BlessingItem.fromApiModel(blessing);
-            item.comments = blessing.comments != null ? blessing.comments : new ArrayList<>();
+            
+            // Merge comments from cached allBlessings (in-memory, has loaded comments)
+            for (Blessing cached : allBlessings) {
+                if (cached.id == blessing.id && cached.comments != null && !cached.comments.isEmpty()) {
+                    item.comments = cached.comments;
+                    Log.d(TAG, "Merged " + item.comments.size() + " comments for blessing id=" + blessing.id);
+                    break;
+                }
+            }
+            
             items.add(item);
         }
         adapter.setBlessings(items);
