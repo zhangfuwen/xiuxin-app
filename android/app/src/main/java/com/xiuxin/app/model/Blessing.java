@@ -24,9 +24,29 @@ public class Blessing implements Serializable {
     public boolean isLiked;
     public boolean isFavorited;
     public List<Comment> comments;
+    public String fontPath;
     
     public Blessing() {
         this.comments = new ArrayList<>();
+        this.fontPath = getRandomFont();
+    }
+    
+    /**
+     * 随机选择字体
+     */
+    private static String getRandomFont() {
+        String[] fonts = {
+            "fonts/hongleibanshujianti_2.ttf",
+            "fonts/pangmenzhengdaozhenguikaiti_2.ttf",
+            "fonts/qiantubifengshouxieti_2.ttf",
+            "fonts/qiantuxianmoti_2.ttf",
+            "fonts/sanjixingkaijianti_cu_2.ttf",
+            "fonts/tanugo_round_regular.otf",
+            "fonts/yangrendongzhushiti_light_2.ttf",
+            "fonts/yanshixiaxingkai_2.ttf",
+            "fonts/zhenzongshengdiankaishu.ttf"
+        };
+        return fonts[new java.util.Random().nextInt(fonts.length)];
     }
     
     /**

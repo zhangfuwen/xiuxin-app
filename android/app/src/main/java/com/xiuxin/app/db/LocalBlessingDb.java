@@ -38,6 +38,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
     private static final String COLUMN_UPDATED_AT = "updatedAt";
     private static final String COLUMN_IS_LIKED = "isLiked";
     private static final String COLUMN_IS_FAVORITED = "isFavorited";
+    private static final String COLUMN_FONT_PATH = "fontPath";
     
     private static LocalBlessingDb instance;
     
@@ -67,7 +68,8 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
                 COLUMN_CREATED_AT + " TEXT," +
                 COLUMN_UPDATED_AT + " TEXT," +
                 COLUMN_IS_LIKED + " INTEGER DEFAULT 0," +
-                COLUMN_IS_FAVORITED + " INTEGER DEFAULT 0" +
+                COLUMN_IS_FAVORITED + " INTEGER DEFAULT 0," +
+                COLUMN_FONT_PATH + " TEXT" +
                 ")";
         db.execSQL(CREATE_TABLE);
         Log.d(TAG, "Table created: " + TABLE_NAME);
@@ -105,6 +107,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
         values.put(COLUMN_UPDATED_AT, blessing.updatedAt);
         values.put(COLUMN_IS_LIKED, blessing.isLiked ? 1 : 0);
         values.put(COLUMN_IS_FAVORITED, blessing.isFavorited ? 1 : 0);
+        values.put(COLUMN_FONT_PATH, blessing.fontPath);
         
         // Insert or replace
         db.replace(TABLE_NAME, null, values);
@@ -364,6 +367,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
         blessing.updatedAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_UPDATED_AT));
         blessing.isLiked = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_LIKED)) == 1;
         blessing.isFavorited = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_FAVORITED)) == 1;
+        blessing.fontPath = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FONT_PATH));
         return blessing;
     }
 }

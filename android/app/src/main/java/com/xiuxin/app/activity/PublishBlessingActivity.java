@@ -36,12 +36,42 @@ public class PublishBlessingActivity extends AppCompatActivity {
     private Button moreBtn;
     private Button publishBtn;
     private Button cancelBtn;
+    private TextView fontSelector;
     
     // Toggle state
     private boolean isAdvancedExpanded = false;
     
     private final String[] categories = {"禅宗", "儒家", "道家", "佛经"};
     private int currentCategoryIndex = 0;
+    
+    // Fonts
+    private static final String[] FONTS = {
+        "默认字体",
+        "洪磊板书体",
+        "庞门正道真贵楷体",
+        "前途笔锋手写体",
+        "前途纤墨体",
+        "三极行楷简体",
+        "Tanugo Round",
+        "杨任东竹体 Light",
+        "演示小行楷",
+        "真宗圣典楷书"
+    };
+    
+    private static final String[] FONT_PATHS = {
+        "",
+        "fonts/hongleibanshujianti_2.ttf",
+        "fonts/pangmenzhengdaozhenguikaiti_2.ttf",
+        "fonts/qiantubifengshouxieti_2.ttf",
+        "fonts/qiantuxianmoti_2.ttf",
+        "fonts/sanjixingkaijianti_cu_2.ttf",
+        "fonts/tanugo_round_regular.otf",
+        "fonts/yangrendongzhushiti_light_2.ttf",
+        "fonts/yanshixiaxingkai_2.ttf",
+        "fonts/zhenzongshengdiankaishu.ttf"
+    };
+    
+    private int currentFontIndex = 0;
     
     private BlessingsApiClient apiClient;
 
@@ -68,10 +98,14 @@ public class PublishBlessingActivity extends AppCompatActivity {
         practiceEdit = findViewById(R.id.practiceEdit);
         categoryEdit = findViewById(R.id.categoryEdit);
         nameEdit = findViewById(R.id.nameEdit);
+        fontSelector = findViewById(R.id.fontSelector);
         
         // Set default category
         categoryEdit.setText(categories[0]);
         categoryEdit.setEnabled(false); // Read-only, changed via button
+        
+        // Set default font
+        updateFontSelector();
         
         // Buttons
         moreBtn = findViewById(R.id.moreBtn);
@@ -88,6 +122,9 @@ public class PublishBlessingActivity extends AppCompatActivity {
         
         // Category button - cycle through categories
         categoryEdit.setOnClickListener(v -> cycleCategory());
+        
+        // Font selector - cycle through fonts
+        fontSelector.setOnClickListener(v -> cycleFont());
         
         // Cancel button
         cancelBtn.setOnClickListener(v -> finish());
@@ -116,6 +153,28 @@ public class PublishBlessingActivity extends AppCompatActivity {
         Log.d(TAG, "Category changed to: " + categories[currentCategoryIndex]);
     }
     
+    private void cycleFont() {
+        currentFontIndex = (currentFontIndex + 1) % FONTS.length;
+        updateFontSelector();
+        Log.d(TAG, "Font changed to: " + FONTS[currentFontIndex]);
+    }
+    
+    private void updateFontSelector() {
+        fontSelector.setText("🎨 字体：" + FONTS[currentFontIndex]);
+        
+        // Preview font on text input
+        if (currentFontIndex > 0) {
+            try {
+                android.graphics.Typeface typeface = android.graphics.Typeface.createFromAsset(getAssets(), FONT_PATHS[currentFontIndex]);
+                editText.setTypeface(typeface);
+            } catch (Exception e) {
+                editText.setTypeface(null);
+            }
+        } else {
+            editText.setTypeface(null);
+        }
+    }
+    
     private void validateAndPublish() {
         String text = editText.getText().toString().trim();
         
@@ -129,21 +188,22 @@ public class PublishBlessingActivity extends AppCompatActivity {
         String practice = practiceEdit.getText().toString().trim();
         String category = categoryEdit.getText().toString().trim();
         String userName = nameEdit.getText().toString().trim();
+        String fontPath = FONT_PATHS[currentFontIndex];
         
         if (userName.isEmpty()) {
             userName = "匿名";
         }
         
-        Log.d(TAG, "Publishing blessing: " + text.substring(0, Math.min(20, text.length())) + "...");
-        publishBlessing(text, source, practice, category, userName);
+        Log.d(TAG, "Publishing blessing: " + text.substring(0, Math.min(20, text.length())) + "... with font: " + fontPath);
+        publishBlessing(text, source, practice, category, userName, fontPath);
     }
     
-    private void publishBlessing(String text, String source, String practice, String category, String userName) {
+    private void publishBlessing(String text, String source, String practice, String category, String userName, String fontPath) {
         // Disable publish button during request
         publishBtn.setEnabled(false);
         publishBtn.setText("发布中...");
         
-        apiClient.publishBlessing(text, source, practice, category, 
+        apiClient.publishBlessingWithFont(text, source, practice, category, fontPath,
             new BlessingsApiClient.ApiCallback<Blessing>() {
                 @Override
                 public void onSuccess(Blessing blessing) {
