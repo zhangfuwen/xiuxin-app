@@ -19,7 +19,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
     
     private static final String TAG = "LocalBlessingDb";
     private static final String DATABASE_NAME = "blessings_local.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // Added font_path column
     
     // Table name
     private static final String TABLE_NAME = "local_blessings";
@@ -83,8 +83,15 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        onCreate(db);
+        if (oldVersion < 2) {
+            // Add font_path column for version 2
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COLUMN_FONT_PATH + " TEXT");
+                Log.d(TAG, "Database upgraded to version 2: added font_path column");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to add font_path column", e);
+            }
+        }
     }
     
     /**
@@ -367,7 +374,13 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
         blessing.updatedAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_UPDATED_AT));
         blessing.isLiked = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_LIKED)) == 1;
         blessing.isFavorited = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_FAVORITED)) == 1;
-        blessing.fontPath = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FONT_PATH));
+        
+        // Get fontPath if column exists (for backward compatibility)
+        int fontPathIndex = cursor.getColumnIndex(COLUMN_FONT_PATH);
+        if (fontPathIndex >= 0) {
+            blessing.fontPath = cursor.getString(fontPathIndex);
+        }
+        
         return blessing;
     }
 }
