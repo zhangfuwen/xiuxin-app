@@ -10,31 +10,44 @@
     android:focusable="true"
     android:foreground="?android:selectableItemBackground">
 
-    <FrameLayout
+    <!-- 固定宽高比 1:1.2（类似小红书卡片） -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <!-- 背景图 -->
         <ImageView
             android:id="@+id/cardBackground"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/paper_2" />
+            android:src="@drawable/paper_2"
+            app:layout_constraintDimensionRatio="1:1.2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- 禅语文字（提取最多 100 字，最多 10 行） -->
+        <!-- 禅语文字（最多 6 行，避免溢出） -->
         <TextView
             android:id="@+id/cardText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:textSize="16sp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="12dp"
+            android:textSize="15sp"
             android:textColor="#333333"
-            android:maxLines="10"
+            android:maxLines="6"
             android:ellipsize="end"
-            android:lineSpacingExtra="4dp"
-            android:fontFamily="serif" />
+            android:lineSpacingExtra="3dp"
+            android:gravity="center"
+            android:fontFamily="serif"
+            android:shadowColor="#FFFFFF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/cardBackground"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
