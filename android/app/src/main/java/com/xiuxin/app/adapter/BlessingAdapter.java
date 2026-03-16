@@ -156,14 +156,14 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             // Check if this is a grid layout or list layout
             if (cardBackground != null && cardText != null) {
                 // Grid layout - show card with background
-                bindGrid(item);
+                bindGrid(item, position);
             } else {
                 // List layout - show full details
                 bindList(item, position);
             }
         }
         
-        void bindGrid(BlessingItem item) {
+        void bindGrid(BlessingItem item, int position) {
             // 设置背景图
             try {
                 if (item.bgPath != null && !item.bgPath.isEmpty()) {
@@ -197,6 +197,11 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             } catch (Exception e) {
                 cardText.setTypeface(null);
             }
+            
+            // Click listener for grid card
+            itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onItemClick(item, position);
+            });
         }
         
         void bindList(BlessingItem item, int position) {
