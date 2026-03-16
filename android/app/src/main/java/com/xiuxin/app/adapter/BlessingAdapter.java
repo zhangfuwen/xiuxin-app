@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -53,6 +54,8 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         public boolean isFavorite;
         public int id; // API ID
         public List<Comment> comments; // 评论列表
+        public String fontPath; // 字体路径
+        public String bgPath; // 背景图路径
 
         public BlessingItem(String text, String source, String practice, String category) {
             this.text = text;
@@ -77,6 +80,9 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             item.favoriteCount = blessing.favoriteCount;
             item.isLiked = blessing.isLiked;
             item.isFavorite = blessing.isFavorited;
+            item.comments = blessing.comments != null ? blessing.comments : new ArrayList<>();
+            item.fontPath = blessing.fontPath;
+            item.bgPath = blessing.bgPath;
             return item;
         }
     }
@@ -104,26 +110,17 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         return blessings;
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.item_blessing_card, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        BlessingItem item = blessings.get(position);
-        holder.bind(item, position);
-    }
-
     @Override
     public int getItemCount() {
         return blessings.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+        // Grid layout views
+        ImageView cardBackground;
+        TextView cardText;
+        
+        // List layout views
         TextView categoryTag, blessingText, blessingSource, blessingPractice;
         TextView likeCount, favoriteCount, commentCount;
         ImageButton likeBtn, favoriteBtn, commentBtn;
@@ -133,6 +130,12 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
 
         ViewHolder(View itemView) {
             super(itemView);
+            
+            // Try to find grid layout views
+            cardBackground = itemView.findViewById(R.id.cardBackground);
+            cardText = itemView.findViewById(R.id.cardText);
+            
+            // Try to find list layout views
             categoryTag = itemView.findViewById(R.id.categoryTag);
             blessingText = itemView.findViewById(R.id.blessingText);
             blessingSource = itemView.findViewById(R.id.blessingSource);
@@ -150,6 +153,53 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         }
 
         void bind(BlessingItem item, int position) {
+            // Check if this is a grid layout or list layout
+            if (cardBackground != null && cardText != null) {
+                // Grid layout - show card with background
+                bindGrid(item);
+            } else {
+                // List layout - show full details
+                bindList(item, position);
+            }
+        }
+        
+        void bindGrid(BlessingItem item) {
+            // 设置背景图
+            try {
+                if (item.bgPath != null && !item.bgPath.isEmpty()) {
+                    String bgName = item.bgPath.replace("drawable/", "").replace(".png", "").replace(".jpg", "");
+                    int resId = context.getResources().getIdentifier(bgName, "drawable", context.getPackageName());
+                    if (resId != 0) {
+                        cardBackground.setImageResource(resId);
+                    } else {
+                        cardBackground.setImageResource(R.drawable.paper_2);
+                    }
+                } else {
+                    cardBackground.setImageResource(R.drawable.paper_2);
+                }
+            } catch (Exception e) {
+                cardBackground.setImageResource(R.drawable.paper_2);
+            }
+            
+            // 提取禅语文字（最多 100 字，最多 10 行）
+            String text = item.text;
+            if (text.length() > 100) {
+                text = text.substring(0, 100) + "...";
+            }
+            cardText.setText(text);
+            
+            // 应用字体
+            try {
+                if (item.fontPath != null && !item.fontPath.isEmpty()) {
+                    Typeface typeface = Typeface.createFromAsset(context.getAssets(), item.fontPath);
+                    cardText.setTypeface(typeface);
+                }
+            } catch (Exception e) {
+                cardText.setTypeface(null);
+            }
+        }
+        
+        void bindList(BlessingItem item, int position) {
             categoryTag.setText(item.category);
             blessingText.setText(item.text);
             
@@ -232,5 +282,19 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             }
             return String.valueOf(count);
         }
+    }
+    
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.item_blessing_card_grid, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        BlessingItem item = blessings.get(position);
+        holder.bind(item, position);
     }
 }

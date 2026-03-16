@@ -19,7 +19,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
     
     private static final String TAG = "LocalBlessingDb";
     private static final String DATABASE_NAME = "blessings_local.db";
-    private static final int DATABASE_VERSION = 2; // Added font_path column
+    private static final int DATABASE_VERSION = 3; // Added bg_path column
     
     // Table name
     private static final String TABLE_NAME = "local_blessings";
@@ -39,6 +39,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
     private static final String COLUMN_IS_LIKED = "isLiked";
     private static final String COLUMN_IS_FAVORITED = "isFavorited";
     private static final String COLUMN_FONT_PATH = "fontPath";
+    private static final String COLUMN_BG_PATH = "bgPath";
     
     private static LocalBlessingDb instance;
     
@@ -69,7 +70,8 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
                 COLUMN_UPDATED_AT + " TEXT," +
                 COLUMN_IS_LIKED + " INTEGER DEFAULT 0," +
                 COLUMN_IS_FAVORITED + " INTEGER DEFAULT 0," +
-                COLUMN_FONT_PATH + " TEXT" +
+                COLUMN_FONT_PATH + " TEXT," +
+                COLUMN_BG_PATH + " TEXT" +
                 ")";
         db.execSQL(CREATE_TABLE);
         Log.d(TAG, "Table created: " + TABLE_NAME);
@@ -90,6 +92,15 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
                 Log.d(TAG, "Database upgraded to version 2: added font_path column");
             } catch (Exception e) {
                 Log.e(TAG, "Failed to add font_path column", e);
+            }
+        }
+        if (oldVersion < 3) {
+            // Add bg_path column for version 3
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COLUMN_BG_PATH + " TEXT");
+                Log.d(TAG, "Database upgraded to version 3: added bg_path column");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to add bg_path column", e);
             }
         }
     }
@@ -115,6 +126,7 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
         values.put(COLUMN_IS_LIKED, blessing.isLiked ? 1 : 0);
         values.put(COLUMN_IS_FAVORITED, blessing.isFavorited ? 1 : 0);
         values.put(COLUMN_FONT_PATH, blessing.fontPath);
+        values.put(COLUMN_BG_PATH, blessing.bgPath);
         
         // Insert or replace
         db.replace(TABLE_NAME, null, values);
@@ -379,6 +391,12 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
         int fontPathIndex = cursor.getColumnIndex(COLUMN_FONT_PATH);
         if (fontPathIndex >= 0) {
             blessing.fontPath = cursor.getString(fontPathIndex);
+        }
+        
+        // Get bgPath if column exists (for backward compatibility)
+        int bgPathIndex = cursor.getColumnIndex(COLUMN_BG_PATH);
+        if (bgPathIndex >= 0) {
+            blessing.bgPath = cursor.getString(bgPathIndex);
         }
         
         return blessing;

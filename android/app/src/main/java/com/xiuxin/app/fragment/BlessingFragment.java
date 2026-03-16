@@ -111,9 +111,9 @@ public class BlessingFragment extends Fragment {
         // Setup filter spinner
         setupFilterSpinner();
 
-        // Setup RecyclerView
-        Log.d(TAG, "Setting up RecyclerView...");
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Setup RecyclerView with GridLayoutManager (2 columns)
+        Log.d(TAG, "Setting up RecyclerView with grid layout...");
+        recyclerView.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), 2));
         adapter = new BlessingAdapter(getContext());
         recyclerView.setAdapter(adapter);
         Log.d(TAG, "RecyclerView setup complete");

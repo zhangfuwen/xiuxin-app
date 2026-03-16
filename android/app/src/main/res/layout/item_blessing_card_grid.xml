@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:selectableItemBackground">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 背景图 -->
+        <ImageView
+            android:id="@+id/cardBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/paper_2" />
+
+        <!-- 禅语文字（提取最多 100 字，最多 10 行） -->
+        <TextView
+            android:id="@+id/cardText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:maxLines="10"
+            android:ellipsize="end"
+            android:lineSpacingExtra="4dp"
+            android:fontFamily="serif" />
+
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

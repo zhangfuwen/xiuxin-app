@@ -25,10 +25,12 @@ public class Blessing implements Serializable {
     public boolean isFavorited;
     public List<Comment> comments;
     public String fontPath;
+    public String bgPath;
     
     public Blessing() {
         this.comments = new ArrayList<>();
         this.fontPath = getRandomFont();
+        this.bgPath = getRandomBg();
     }
     
     /**
@@ -47,6 +49,26 @@ public class Blessing implements Serializable {
             "fonts/zhenzongshengdiankaishu.ttf"
         };
         return fonts[new java.util.Random().nextInt(fonts.length)];
+    }
+    
+    /**
+     * 随机选择背景图
+     */
+    private static String getRandomBg() {
+        String[] bgs = {
+            "drawable/paper_2.jpg",
+            "drawable/paper_3.jpg",
+            "drawable/paper_low_1.jpg",
+            "drawable/paper_low_2.jpg",
+            "drawable/paper_low_3.jpg",
+            "drawable/paper_low_4.png",
+            "drawable/paper_low_5.png",
+            "drawable/paper_low_6.png",
+            "drawable/paper_low_7.png",
+            "drawable/paper_low_8.png",
+            "drawable/paper_low_9.png"
+        };
+        return bgs[new java.util.Random().nextInt(bgs.length)];
     }
     
     /**
