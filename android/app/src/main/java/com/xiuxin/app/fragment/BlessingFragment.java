@@ -3,6 +3,7 @@ package com.xiuxin.app.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,9 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.xiuxin.app.R;
 import com.xiuxin.app.activity.BlessingDetailActivity;
+import com.xiuxin.app.activity.PublishBlessingActivity;
 import com.xiuxin.app.adapter.BlessingAdapter;
 import com.xiuxin.app.api.BlessingsApiClient;
-import com.xiuxin.app.dialog.PublishBlessingDialog;
 import com.xiuxin.app.model.Blessing;
 
 import java.util.ArrayList;
@@ -373,22 +374,11 @@ public class BlessingFragment extends Fragment {
     }
     
     /**
-     * 显示发布对话框
+     * 打开发布禅语 Activity
      */
     private void showPublishDialog() {
-        PublishBlessingDialog dialog = new PublishBlessingDialog(getContext());
-        dialog.setOnPublishListener(new PublishBlessingDialog.OnPublishListener() {
-            @Override
-            public void onPublishSuccess(Blessing blessing) {
-                // Refresh the list
-                loadBlessingsFromApi();
-            }
-
-            @Override
-            public void onPublishError(String error) {
-                // Error already shown in dialog
-            }
-        });
-        dialog.show();
+        Log.d(TAG, "Opening PublishBlessingActivity");
+        Intent intent = new Intent(getContext(), PublishBlessingActivity.class);
+        startActivity(intent);
     }
 }

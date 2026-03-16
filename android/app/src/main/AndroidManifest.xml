@@ -29,6 +29,12 @@
             android:name=".activity.BlessingDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Xiuxin" />
+        
+        <activity
+            android:name=".activity.PublishBlessingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Xiuxin"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
