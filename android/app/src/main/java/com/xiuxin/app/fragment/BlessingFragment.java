@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import java.util.List;
 
 public class BlessingFragment extends Fragment {
 
+    private static final String TAG = "BlessingFragment";
     private RecyclerView recyclerView;
     private Spinner categorySpinner;
     private Button btnPublish;
@@ -49,19 +51,25 @@ public class BlessingFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        Log.d(TAG, "=== onAttach called ===");
         prefs = context.getSharedPreferences("xiuxin", Context.MODE_PRIVATE);
         apiClient = BlessingsApiClient.getInstance();
+        Log.d(TAG, "SharedPreferences and ApiClient initialized");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_blessing, container, false);
+        Log.d(TAG, "=== onCreateView called ===");
+        View view = inflater.inflate(R.layout.fragment_blessing, container, false);
+        Log.d(TAG, "Layout inflated: " + (view != null ? "success" : "FAILED"));
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "=== onViewCreated called ===");
 
         recyclerView = view.findViewById(R.id.blessingRecyclerView);
         categorySpinner = view.findViewById(R.id.categorySpinner);
@@ -73,18 +81,32 @@ public class BlessingFragment extends Fragment {
         errorDetail = view.findViewById(R.id.errorDetail);
         btnRetry = view.findViewById(R.id.btnRetry);
         
+        Log.d(TAG, "All views initialized");
+        Log.d(TAG, "recyclerView: " + (recyclerView != null ? "OK" : "NULL"));
+        Log.d(TAG, "btnPublish: " + (btnPublish != null ? "OK" : "NULL"));
+        Log.d(TAG, "btnRetry: " + (btnRetry != null ? "OK" : "NULL"));
+        
         // Setup publish button
-        btnPublish.setOnClickListener(v -> showPublishDialog());
+        btnPublish.setOnClickListener(v -> {
+            Log.d(TAG, "Publish button clicked");
+            showPublishDialog();
+        });
         
         // Setup retry button
-        btnRetry.setOnClickListener(v -> loadBlessingsFromApi());
+        btnRetry.setOnClickListener(v -> {
+            Log.d(TAG, "Retry button clicked");
+            loadBlessingsFromApi();
+        });
 
         // Setup RecyclerView
+        Log.d(TAG, "Setting up RecyclerView...");
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new BlessingAdapter();
         recyclerView.setAdapter(adapter);
+        Log.d(TAG, "RecyclerView setup complete");
 
         // Setup category spinner
+        Log.d(TAG, "Setting up category spinner...");
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -96,12 +118,16 @@ public class BlessingFragment extends Fragment {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
                 selectedCategory = categories[position];
+                Log.d(TAG, "Category changed to: " + selectedCategory);
                 loadBlessingsFromApi();
             }
 
             @Override
-            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                Log.d(TAG, "Nothing selected in spinner");
+            }
         });
+        Log.d(TAG, "Category spinner setup complete");
 
         // Adapter click listener
         adapter.setOnItemClickListener(new BlessingAdapter.OnItemClickListener() {
@@ -166,6 +192,7 @@ public class BlessingFragment extends Fragment {
         });
 
         // Load blessings from API
+        Log.d(TAG, "Calling loadBlessingsFromApi() for the first time");
         loadBlessingsFromApi();
     }
     
@@ -173,26 +200,41 @@ public class BlessingFragment extends Fragment {
      * 从 API 加载禅语
      */
     private void loadBlessingsFromApi() {
+        Log.d(TAG, "=== loadBlessingsFromApi START ===");
+        Log.d(TAG, "Selected category: " + selectedCategory);
+        Log.d(TAG, "ApiClient instance: " + (apiClient != null ? "OK" : "NULL"));
+        
         showLoading(true);
+        Log.d(TAG, "Loading state shown");
         
         apiClient.getBlessings(selectedCategory.equals("全部") ? null : selectedCategory, 20, 
             new BlessingsApiClient.ApiCallback<List<Blessing>>() {
                 @Override
                 public void onSuccess(List<Blessing> blessings) {
+                    Log.d(TAG, "[Callback] onSuccess called with " + blessings.size() + " items");
                     showLoading(false);
                     if (blessings.isEmpty()) {
+                        Log.d(TAG, "Blessings list is empty, showing empty state");
                         showEmptyState("暂无内容", "点击上方\"发布\"按钮分享你的感悟");
                     } else {
+                        Log.d(TAG, "Updating adapter with " + blessings.size() + " blessings");
                         updateAdapter(blessings);
                     }
+                    Log.d(TAG, "[Callback] onSuccess END");
                 }
 
                 @Override
                 public void onError(String error) {
+                    Log.e(TAG, "[Callback] onError called: " + error);
                     showLoading(false);
-                    showErrorState("加载失败", getErrorMessage(error));
+                    String friendlyMessage = getErrorMessage(error);
+                    Log.e(TAG, "Friendly error message: " + friendlyMessage);
+                    showErrorState("加载失败", friendlyMessage);
+                    Log.d(TAG, "[Callback] onError END");
                 }
             });
+        
+        Log.d(TAG, "=== loadBlessingsFromApi END ===");
     }
     
     /**

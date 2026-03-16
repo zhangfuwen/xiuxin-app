@@ -69,39 +69,63 @@ public class BlessingsApiClient {
      * @param callback 回调
      */
     public void getBlessings(String category, int limit, final ApiCallback<List<Blessing>> callback) {
+        Log.d(TAG, "=== getBlessings START ===");
+        Log.d(TAG, "Category: " + category + ", Limit: " + limit);
+        Log.d(TAG, "Current UserId: " + currentUserId);
+        
         executor.execute(() -> {
             try {
                 String urlStr = BASE_URL + "?limit=" + limit;
                 if (category != null && !category.equals("全部")) {
                     urlStr += "&category=" + java.net.URLEncoder.encode(category, "UTF-8");
                 }
-                if (currentUserId != null) {
-                    urlStr += "&user_id=" + currentUserId;
-                }
+                // NOTE: Removed user_id from GET request - it was filtering out all blessings
+                // user_id should only be used for POST/PUT/DELETE operations
+                // if (currentUserId != null) {
+                //     urlStr += "&user_id=" + currentUserId;
+                // }
                 
-                Log.d(TAG, "Fetching blessings from: " + urlStr);
+                Log.d(TAG, "Full URL: " + urlStr);
+                Log.d(TAG, "Opening HTTP connection...");
+                
+                long startTime = System.currentTimeMillis();
                 String response = httpGet(urlStr);
-                Log.d(TAG, "Response: " + response.substring(0, Math.min(200, response.length())));
+                long endTime = System.currentTimeMillis();
+                
+                Log.d(TAG, "HTTP request completed in " + (endTime - startTime) + "ms");
+                Log.d(TAG, "Response length: " + response.length() + " bytes");
+                Log.d(TAG, "Response preview: " + response.substring(0, Math.min(500, response.length())));
+                
                 JSONObject json = new JSONObject(response);
+                Log.d(TAG, "JSON parsed successfully");
                 
                 if (json.optBoolean("success", false)) {
                     JSONArray data = json.optJSONArray("data");
                     List<Blessing> blessings = new ArrayList<>();
                     if (data != null) {
+                        Log.d(TAG, "Data array length: " + data.length());
                         for (int i = 0; i < data.length(); i++) {
                             Blessing blessing = Blessing.fromJson(data.optJSONObject(i));
                             if (blessing != null) {
                                 blessings.add(blessing);
                             }
                         }
+                        Log.d(TAG, "Parsed " + blessings.size() + " blessings");
                     }
+                    Log.d(TAG, "Calling onSuccess callback");
                     postSuccess(callback, blessings);
                 } else {
-                    postError(callback, json.optString("error", "Unknown error"));
+                    String errorMsg = json.optString("error", "Unknown error");
+                    Log.e(TAG, "API returned error: " + errorMsg);
+                    postError(callback, errorMsg);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error getting blessings", e);
+                Log.e(TAG, "=== EXCEPTION in getBlessings ===", e);
+                Log.e(TAG, "Exception type: " + e.getClass().getName());
+                Log.e(TAG, "Exception message: " + e.getMessage());
                 postError(callback, "网络错误：" + e.getMessage() + " (请检查网络连接)");
+            } finally {
+                Log.d(TAG, "=== getBlessings END ===");
             }
         });
     }
@@ -263,15 +287,23 @@ public class BlessingsApiClient {
     // ============== HTTP 工具方法 ==============
     
     private String httpGet(String urlStr) throws Exception {
+        Log.d(TAG, "[HTTP GET] URL: " + urlStr);
+        
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        Log.d(TAG, "[HTTP GET] Connection opened");
+        
         conn.setRequestMethod("GET");
         conn.setConnectTimeout(10000);
         conn.setReadTimeout(10000);
         conn.setRequestProperty("Accept", "application/json");
+        Log.d(TAG, "[HTTP GET] Request method and headers set");
         
         int responseCode = conn.getResponseCode();
+        Log.d(TAG, "[HTTP GET] Response code: " + responseCode);
+        
         if (responseCode != 200) {
+            Log.e(TAG, "[HTTP GET] Non-200 response code: " + responseCode);
             throw new Exception("HTTP error: " + responseCode);
         }
         
@@ -284,26 +316,37 @@ public class BlessingsApiClient {
         reader.close();
         conn.disconnect();
         
+        Log.d(TAG, "[HTTP GET] Response received, length: " + response.length());
         return response.toString();
     }
     
     private String httpPost(String urlStr, JSONObject payload) throws Exception {
+        Log.d(TAG, "[HTTP POST] URL: " + urlStr);
+        Log.d(TAG, "[HTTP POST] Payload: " + payload.toString());
+        
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        Log.d(TAG, "[HTTP POST] Connection opened");
+        
         conn.setRequestMethod("POST");
         conn.setConnectTimeout(10000);
         conn.setReadTimeout(10000);
         conn.setDoOutput(true);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
+        Log.d(TAG, "[HTTP POST] Request method and headers set");
         
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = payload.toString().getBytes("UTF-8");
             os.write(input, 0, input.length);
+            Log.d(TAG, "[HTTP POST] Request body sent, " + input.length + " bytes");
         }
         
         int responseCode = conn.getResponseCode();
+        Log.d(TAG, "[HTTP POST] Response code: " + responseCode);
+        
         if (responseCode != 200 && responseCode != 201) {
+            Log.e(TAG, "[HTTP POST] Non-200/201 response code: " + responseCode);
             throw new Exception("HTTP error: " + responseCode);
         }
         
@@ -316,6 +359,7 @@ public class BlessingsApiClient {
         reader.close();
         conn.disconnect();
         
+        Log.d(TAG, "[HTTP POST] Response received, length: " + response.length());
         return response.toString();
     }
     
