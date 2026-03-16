@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="practiced_color">#8b7355</color>
+    <color name="today_color">#f5f0eb</color>
+    <color name="today_stroke_color">#8b7355</color>
+    <color name="today_text_color">#8b7355</color>
+</resources>

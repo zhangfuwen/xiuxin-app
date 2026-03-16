@@ -114,6 +114,156 @@
             android:layout_marginTop="4dp" />
     </LinearLayout>
 
+    <!-- Calendar Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📅 修习日历"
+        android:textSize="18sp"
+        android:textColor="#5a4a42"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Calendar Grid -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/stat_card"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Weekday Headers -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="日"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="一"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="二"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="三"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="四"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="五"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="六"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Calendar Days Grid -->
+        <GridLayout
+            android:id="@+id/calendarGrid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="7"
+            android:rowCount="6" />
+
+        <!-- Legend -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:spacing="16dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:background="@drawable/calendar_day_practiced"
+                    android:layout_marginEnd="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="已修习"
+                    android:textSize="11sp"
+                    android:textColor="#666" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="16dp">
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:background="@drawable/calendar_day_empty"
+                    android:layout_marginEnd="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="未修习"
+                    android:textSize="11sp"
+                    android:textColor="#666" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
     <!-- Recent Activity -->
     <TextView
         android:layout_width="wrap_content"
