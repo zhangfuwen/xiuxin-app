@@ -37,9 +37,11 @@ public class BlessingFragment extends Fragment {
     private RecyclerView recyclerView;
     private Spinner categorySpinner;
     private Button btnPublish;
+    private Button btnFilterAll, btnFilterLiked, btnFilterFavorited;
     private BlessingAdapter adapter;
     private SharedPreferences prefs;
     private String selectedCategory = "全部";
+    private String currentFilter = "all"; // all, liked, favorited
     private BlessingsApiClient apiClient;
     private View loadingView;
     private View emptyView;
@@ -48,6 +50,7 @@ public class BlessingFragment extends Fragment {
     private Button btnRetry;
     
     private final String[] categories = {"全部", "禅宗", "儒家", "道家", "佛经"};
+    private List<Blessing> allBlessings = new ArrayList<>(); // Cache all blessings
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -75,6 +78,9 @@ public class BlessingFragment extends Fragment {
         recyclerView = view.findViewById(R.id.blessingRecyclerView);
         categorySpinner = view.findViewById(R.id.categorySpinner);
         btnPublish = view.findViewById(R.id.btnPublish);
+        btnFilterAll = view.findViewById(R.id.btnFilterAll);
+        btnFilterLiked = view.findViewById(R.id.btnFilterLiked);
+        btnFilterFavorited = view.findViewById(R.id.btnFilterFavorited);
         loadingView = view.findViewById(R.id.loadingView);
         emptyView = view.findViewById(R.id.emptyView);
         errorView = view.findViewById(R.id.errorView);
@@ -85,7 +91,9 @@ public class BlessingFragment extends Fragment {
         Log.d(TAG, "All views initialized");
         Log.d(TAG, "recyclerView: " + (recyclerView != null ? "OK" : "NULL"));
         Log.d(TAG, "btnPublish: " + (btnPublish != null ? "OK" : "NULL"));
-        Log.d(TAG, "btnRetry: " + (btnRetry != null ? "OK" : "NULL"));
+        Log.d(TAG, "btnFilterAll: " + (btnFilterAll != null ? "OK" : "NULL"));
+        Log.d(TAG, "btnFilterLiked: " + (btnFilterLiked != null ? "OK" : "NULL"));
+        Log.d(TAG, "btnFilterFavorited: " + (btnFilterFavorited != null ? "OK" : "NULL"));
         
         // Setup publish button
         btnPublish.setOnClickListener(v -> {
@@ -98,6 +106,14 @@ public class BlessingFragment extends Fragment {
             Log.d(TAG, "Retry button clicked");
             loadBlessingsFromApi();
         });
+        
+        // Setup filter buttons
+        btnFilterAll.setOnClickListener(v -> setFilter("all"));
+        btnFilterLiked.setOnClickListener(v -> setFilter("liked"));
+        btnFilterFavorited.setOnClickListener(v -> setFilter("favorited"));
+        
+        // Set initial filter state
+        updateFilterButtons();
 
         // Setup RecyclerView
         Log.d(TAG, "Setting up RecyclerView...");
@@ -214,12 +230,17 @@ public class BlessingFragment extends Fragment {
                 public void onSuccess(List<Blessing> blessings) {
                     Log.d(TAG, "[Callback] onSuccess called with " + blessings.size() + " items");
                     showLoading(false);
-                    if (blessings.isEmpty()) {
+                    
+                    // Cache all blessings
+                    allBlessings = blessings != null ? new ArrayList<>(blessings) : new ArrayList<>();
+                    Log.d(TAG, "Cached " + allBlessings.size() + " blessings");
+                    
+                    if (allBlessings.isEmpty()) {
                         Log.d(TAG, "Blessings list is empty, showing empty state");
                         showEmptyState("暂无内容", "点击上方\"发布\"按钮分享你的感悟");
                     } else {
-                        Log.d(TAG, "Updating adapter with " + blessings.size() + " blessings");
-                        updateAdapter(blessings);
+                        Log.d(TAG, "Applying filter: " + currentFilter);
+                        applyFilter();
                     }
                     Log.d(TAG, "[Callback] onSuccess END");
                 }
@@ -256,6 +277,67 @@ public class BlessingFragment extends Fragment {
     /**
      * 更新 Adapter 数据
      */
+    /**
+     * 设置过滤条件
+     */
+    private void setFilter(String filter) {
+        Log.d(TAG, "Setting filter: " + filter);
+        currentFilter = filter;
+        updateFilterButtons();
+        applyFilter();
+    }
+    
+    /**
+     * 更新过滤按钮状态
+     */
+    private void updateFilterButtons() {
+        // Reset all buttons to default style
+        btnFilterAll.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
+        btnFilterLiked.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
+        btnFilterFavorited.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
+        
+        // Highlight active filter
+        switch (currentFilter) {
+            case "all":
+                btnFilterAll.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
+                break;
+            case "liked":
+                btnFilterLiked.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
+                break;
+            case "favorited":
+                btnFilterFavorited.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
+                break;
+        }
+    }
+    
+    /**
+     * 应用过滤条件
+     */
+    private void applyFilter() {
+        List<Blessing> filtered = new ArrayList<>();
+        
+        for (Blessing b : allBlessings) {
+            boolean matchesCategory = selectedCategory.equals("全部") || selectedCategory.equals(b.category);
+            boolean matchesFilter = true;
+            
+            switch (currentFilter) {
+                case "liked":
+                    matchesFilter = b.isLiked;
+                    break;
+                case "favorited":
+                    matchesFilter = b.isFavorited;
+                    break;
+            }
+            
+            if (matchesCategory && matchesFilter) {
+                filtered.add(b);
+            }
+        }
+        
+        Log.d(TAG, "Filtered from " + allBlessings.size() + " to " + filtered.size() + " items");
+        updateAdapter(filtered);
+    }
+    
     private void updateAdapter(List<Blessing> blessings) {
         List<BlessingAdapter.BlessingItem> items = new ArrayList<>();
         for (Blessing blessing : blessings) {
