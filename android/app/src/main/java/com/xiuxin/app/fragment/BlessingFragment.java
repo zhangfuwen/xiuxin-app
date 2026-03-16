@@ -25,6 +25,7 @@ import com.xiuxin.app.activity.BlessingDetailActivity;
 import com.xiuxin.app.activity.PublishBlessingActivity;
 import com.xiuxin.app.adapter.BlessingAdapter;
 import com.xiuxin.app.api.BlessingsApiClient;
+import com.xiuxin.app.db.LocalBlessingDb;
 import com.xiuxin.app.model.Blessing;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class BlessingFragment extends Fragment {
     private Button btnPublish;
     private BlessingAdapter adapter;
     private SharedPreferences prefs;
+    private LocalBlessingDb localDb;
     private String selectedCategory = "全部";
     private String currentFilter = "全部"; // 全部，赞过的，收藏的
     private BlessingsApiClient apiClient;
@@ -57,8 +59,10 @@ public class BlessingFragment extends Fragment {
         super.onAttach(context);
         Log.d(TAG, "=== onAttach called ===");
         prefs = context.getSharedPreferences("xiuxin", Context.MODE_PRIVATE);
+        localDb = LocalBlessingDb.getInstance(context);
         apiClient = BlessingsApiClient.getInstance();
-        Log.d(TAG, "SharedPreferences and ApiClient initialized");
+        Log.d(TAG, "LocalDb, SharedPreferences and ApiClient initialized");
+        Log.d(TAG, "Local database has " + localDb.getCount() + " blessings");
     }
 
     @Nullable
@@ -162,14 +166,12 @@ public class BlessingFragment extends Fragment {
                         public void onSuccess(BlessingsApiClient.InteractionResult result) {
                             item.isLiked = result.active;
                             item.likeCount = result.count;
-                            // 本地保存点赞状态
-                            saveLikeState(item.id, result.active);
+                            // 本地数据库更新点赞状态
+                            localDb.updateLikeStatus(item.id, result.active);
                             adapter.notifyItemChanged(position);
                             Toast.makeText(getContext(), item.isLiked ? "❤️ 已点赞" : "取消点赞", Toast.LENGTH_SHORT).show();
-                            // 如果当前是点赞过滤，刷新列表
-                            if (currentFilter.equals("❤️ 赞过的")) {
-                                applyFilter();
-                            }
+                            // 刷新过滤列表
+                            applyFilter();
                         }
 
                         @Override
@@ -192,14 +194,12 @@ public class BlessingFragment extends Fragment {
                         public void onSuccess(BlessingsApiClient.InteractionResult result) {
                             item.isFavorite = result.active;
                             item.favoriteCount = result.count;
-                            // 本地保存收藏状态
-                            saveFavoriteState(item.id, result.active);
+                            // 本地数据库更新收藏状态
+                            localDb.updateFavoriteStatus(item.id, result.active);
                             adapter.notifyItemChanged(position);
                             Toast.makeText(getContext(), item.isFavorite ? "⭐ 已收藏" : "取消收藏", Toast.LENGTH_SHORT).show();
-                            // 如果当前是收藏过滤，刷新列表
-                            if (currentFilter.equals("⭐ 收藏的")) {
-                                applyFilter();
-                            }
+                            // 刷新过滤列表
+                            applyFilter();
                         }
 
                         @Override
@@ -240,6 +240,12 @@ public class BlessingFragment extends Fragment {
                     // Cache all blessings
                     allBlessings = blessings != null ? new ArrayList<>(blessings) : new ArrayList<>();
                     Log.d(TAG, "Cached " + allBlessings.size() + " blessings");
+                    
+                    // Save to local database
+                    if (!allBlessings.isEmpty()) {
+                        localDb.saveBlessings(allBlessings);
+                        Log.d(TAG, "Saved " + allBlessings.size() + " blessings to local database");
+                    }
                     
                     if (allBlessings.isEmpty()) {
                         Log.d(TAG, "Blessings list is empty, showing empty state");
@@ -309,68 +315,25 @@ public class BlessingFragment extends Fragment {
     }
     
     /**
-     * 从本地缓存获取点赞状态
-     */
-    private boolean isLocallyLiked(int blessingId) {
-        return prefs.getBoolean("liked_" + blessingId, false);
-    }
-    
-    /**
-     * 从本地缓存获取收藏状态
-     */
-    private boolean isLocallyFavorited(int blessingId) {
-        return prefs.getBoolean("favorited_" + blessingId, false);
-    }
-    
-    /**
-     * 本地保存点赞状态
-     */
-    private void saveLikeState(int blessingId, boolean liked) {
-        prefs.edit().putBoolean("liked_" + blessingId, liked).apply();
-        Log.d(TAG, "Saved like state for blessing " + blessingId + ": " + liked);
-    }
-    
-    /**
-     * 本地保存收藏状态
-     */
-    private void saveFavoriteState(int blessingId, boolean favorited) {
-        prefs.edit().putBoolean("favorited_" + blessingId, favorited).apply();
-        Log.d(TAG, "Saved favorite state for blessing " + blessingId + ": " + favorited);
-    }
-    
-    /**
-     * 应用过滤条件
+     * 应用过滤条件 - 从本地数据库读取
      */
     private void applyFilter() {
-        List<Blessing> filtered = new ArrayList<>();
+        Log.d(TAG, "Applying filter - category=" + selectedCategory + ", filter=" + currentFilter);
         
-        for (Blessing b : allBlessings) {
-            boolean matchesCategory = selectedCategory.equals("全部") || selectedCategory.equals(b.category);
-            boolean matchesFilter = true;
-            
-            // 使用本地缓存的状态进行过滤
-            boolean isLiked = isLocallyLiked(b.id);
-            boolean isFavorited = isLocallyFavorited(b.id);
-            
-            // 同步到 Blessing 对象
-            b.isLiked = isLiked;
-            b.isFavorited = isFavorited;
-            
-            switch (currentFilter) {
-                case "❤️ 赞过的":
-                    matchesFilter = isLiked;
-                    break;
-                case "⭐ 收藏的":
-                    matchesFilter = isFavorited;
-                    break;
-            }
-            
-            if (matchesCategory && matchesFilter) {
-                filtered.add(b);
-            }
+        List<Blessing> filtered;
+        
+        // Convert filter type to database filter
+        String dbFilterType = null;
+        if (currentFilter.equals("❤️ 赞过的")) {
+            dbFilterType = "liked";
+        } else if (currentFilter.equals("⭐ 收藏的")) {
+            dbFilterType = "favorited";
         }
         
-        Log.d(TAG, "Filtered from " + allBlessings.size() + " to " + filtered.size() + " items (filter=" + currentFilter + ")");
+        // Get filtered data from local database
+        filtered = localDb.getBlessingsByFilter(selectedCategory.equals("全部") ? null : selectedCategory, dbFilterType);
+        
+        Log.d(TAG, "Filtered from local database: " + filtered.size() + " items");
         updateAdapter(filtered);
     }
     
