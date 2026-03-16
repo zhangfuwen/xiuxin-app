@@ -207,6 +207,28 @@
                     android:padding="12dp"
                     android:background="@drawable/practice_hint_background"
                     android:clickable="true"
+                    android:focusable="true"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Background Selector -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="选择背景"
+                    android:textSize="14sp"
+                    android:textColor="#8b7d72"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/bgSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🖼️ 背景：paper_2.jpg"
+                    android:textSize="15sp"
+                    android:textColor="#8b7355"
+                    android:padding="12dp"
+                    android:background="@drawable/practice_hint_background"
+                    android:clickable="true"
                     android:focusable="true" />
             </LinearLayout>
 

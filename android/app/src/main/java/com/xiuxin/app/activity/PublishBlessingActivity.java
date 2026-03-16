@@ -73,6 +73,35 @@ public class PublishBlessingActivity extends AppCompatActivity {
     
     private int currentFontIndex = 0;
     
+    // Background images
+    private static final String[] BG_NAMES = {
+        "paper_2.jpg",
+        "paper_3.jpg",
+        "paper_low_1.jpg",
+        "paper_low_2.jpg",
+        "paper_low_3.jpg",
+        "paper_low_4.png",
+        "paper_low_5.png",
+        "paper_low_6.png",
+        "paper_low_7.png",
+        "paper_low_8.png",
+        "paper_low_9.png"
+    };
+    private static final String[] BG_PATHS = {
+        "drawable/paper_2.jpg",
+        "drawable/paper_3.jpg",
+        "drawable/paper_low_1.jpg",
+        "drawable/paper_low_2.jpg",
+        "drawable/paper_low_3.jpg",
+        "drawable/paper_low_4.png",
+        "drawable/paper_low_5.png",
+        "drawable/paper_low_6.png",
+        "drawable/paper_low_7.png",
+        "drawable/paper_low_8.png",
+        "drawable/paper_low_9.png"
+    };
+    private int currentBgIndex = 0;
+    
     private BlessingsApiClient apiClient;
 
     @Override
@@ -99,6 +128,7 @@ public class PublishBlessingActivity extends AppCompatActivity {
         categoryEdit = findViewById(R.id.categoryEdit);
         nameEdit = findViewById(R.id.nameEdit);
         fontSelector = findViewById(R.id.fontSelector);
+        TextView bgSelector = findViewById(R.id.bgSelector);
         
         // Set default category
         categoryEdit.setText(categories[0]);
@@ -106,6 +136,12 @@ public class PublishBlessingActivity extends AppCompatActivity {
         
         // Set default font
         updateFontSelector();
+        
+        // Set default background
+        updateBgSelector();
+        
+        // Background selector click
+        bgSelector.setOnClickListener(v -> cycleBackground());
         
         // Buttons
         moreBtn = findViewById(R.id.moreBtn);
@@ -175,6 +211,17 @@ public class PublishBlessingActivity extends AppCompatActivity {
         }
     }
     
+    private void cycleBackground() {
+        currentBgIndex = (currentBgIndex + 1) % BG_NAMES.length;
+        updateBgSelector();
+        Log.d(TAG, "Background changed to: " + BG_NAMES[currentBgIndex]);
+    }
+    
+    private void updateBgSelector() {
+        TextView bgSelector = findViewById(R.id.bgSelector);
+        bgSelector.setText("🖼️ 背景：" + BG_NAMES[currentBgIndex]);
+    }
+    
     private void validateAndPublish() {
         String text = editText.getText().toString().trim();
         
@@ -189,21 +236,22 @@ public class PublishBlessingActivity extends AppCompatActivity {
         String category = categoryEdit.getText().toString().trim();
         String userName = nameEdit.getText().toString().trim();
         String fontPath = FONT_PATHS[currentFontIndex];
+        String bgPath = BG_PATHS[currentBgIndex];
         
         if (userName.isEmpty()) {
             userName = "匿名";
         }
         
-        Log.d(TAG, "Publishing blessing: " + text.substring(0, Math.min(20, text.length())) + "... with font: " + fontPath);
-        publishBlessing(text, source, practice, category, userName, fontPath);
+        Log.d(TAG, "Publishing blessing: " + text.substring(0, Math.min(20, text.length())) + "... with font: " + fontPath + ", bg: " + bgPath);
+        publishBlessing(text, source, practice, category, userName, fontPath, bgPath);
     }
     
-    private void publishBlessing(String text, String source, String practice, String category, String userName, String fontPath) {
+    private void publishBlessing(String text, String source, String practice, String category, String userName, String fontPath, String bgPath) {
         // Disable publish button during request
         publishBtn.setEnabled(false);
         publishBtn.setText("发布中...");
         
-        apiClient.publishBlessingWithFont(text, source, practice, category, fontPath,
+        apiClient.publishBlessingWithFontAndBg(text, source, practice, category, fontPath, bgPath,
             new BlessingsApiClient.ApiCallback<Blessing>() {
                 @Override
                 public void onSuccess(Blessing blessing) {

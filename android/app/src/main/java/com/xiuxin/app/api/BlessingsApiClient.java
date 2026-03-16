@@ -131,9 +131,9 @@ public class BlessingsApiClient {
     }
     
     /**
-     * 发布新禅语（带字体）
+     * 发布新禅语（带字体和背景）
      */
-    public void publishBlessingWithFont(String text, String source, String practice, String category, String fontPath,
+    public void publishBlessingWithFontAndBg(String text, String source, String practice, String category, String fontPath, String bgPath,
                                 final ApiCallback<Blessing> callback) {
         executor.execute(() -> {
             try {
@@ -145,6 +145,7 @@ public class BlessingsApiClient {
                 payload.put("practice", practice);
                 payload.put("category", category);
                 payload.put("font_path", fontPath);
+                payload.put("bg_path", bgPath);
                 
                 String response = httpPost(BASE_URL, payload);
                 JSONObject json = new JSONObject(response);
@@ -160,6 +161,14 @@ public class BlessingsApiClient {
                 postError(callback, "发布失败：" + e.getMessage());
             }
         });
+    }
+    
+    /**
+     * 发布新禅语（带字体）- 旧方法，兼容用
+     */
+    public void publishBlessingWithFont(String text, String source, String practice, String category, String fontPath,
+                                final ApiCallback<Blessing> callback) {
+        publishBlessingWithFontAndBg(text, source, practice, category, fontPath, "", callback);
     }
     
     /**

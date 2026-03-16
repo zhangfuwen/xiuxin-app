@@ -90,6 +90,8 @@ public class Blessing implements Serializable {
             blessing.updatedAt = json.optString("updated_at", "");
             blessing.isLiked = json.optBoolean("is_liked", false);
             blessing.isFavorited = json.optBoolean("is_favorited", false);
+            blessing.fontPath = json.optString("font_path", "");
+            blessing.bgPath = json.optString("bg_path", "");
             return blessing;
         } catch (Exception e) {
             e.printStackTrace();
