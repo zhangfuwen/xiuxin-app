@@ -11,7 +11,10 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:background="#ffffff">
 
         <TextView
@@ -19,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="正念"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textColor="#5a4a42"
             android:textStyle="bold" />
 
@@ -27,62 +30,28 @@
         <Button
             android:id="@+id/btnPublish"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="36dp"
             android:text="发布"
-            android:textSize="14sp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:textSize="13sp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:layout_marginEnd="8dp"
             style="@style/Widget.Material3.Button.TonalButton" />
 
         <!-- 分类筛选 -->
         <Spinner
             android:id="@+id/categorySpinner"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
+            android:layout_width="80dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/category_spinner_bg" />
-    </LinearLayout>
 
-    <!-- 过滤按钮栏 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:background="#ffffff"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btnFilterAll"
-            android:layout_width="0dp"
+        <!-- 过滤筛选 -->
+        <Spinner
+            android:id="@+id/filterSpinner"
+            android:layout_width="100dp"
             android:layout_height="36dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="全部"
-            android:textSize="13sp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-
-        <Button
-            android:id="@+id/btnFilterLiked"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="❤️ 赞过的"
-            android:textSize="13sp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-
-        <Button
-            android:id="@+id/btnFilterFavorited"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:text="⭐ 收藏的"
-            android:textSize="13sp"
-            style="@style/Widget.Material3.Button.TonalButton" />
+            android:background="@drawable/category_spinner_bg" />
     </LinearLayout>
 
     <!-- Loading indicator -->

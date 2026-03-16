@@ -3,7 +3,6 @@ package com.xiuxin.app.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,12 +35,12 @@ public class BlessingFragment extends Fragment {
     private static final String TAG = "BlessingFragment";
     private RecyclerView recyclerView;
     private Spinner categorySpinner;
+    private Spinner filterSpinner;
     private Button btnPublish;
-    private Button btnFilterAll, btnFilterLiked, btnFilterFavorited;
     private BlessingAdapter adapter;
     private SharedPreferences prefs;
     private String selectedCategory = "全部";
-    private String currentFilter = "all"; // all, liked, favorited
+    private String currentFilter = "全部"; // 全部，赞过的，收藏的
     private BlessingsApiClient apiClient;
     private View loadingView;
     private View emptyView;
@@ -50,6 +49,7 @@ public class BlessingFragment extends Fragment {
     private Button btnRetry;
     
     private final String[] categories = {"全部", "禅宗", "儒家", "道家", "佛经"};
+    private final String[] filters = {"全部", "❤️ 赞过的", "⭐ 收藏的"};
     private List<Blessing> allBlessings = new ArrayList<>(); // Cache all blessings
 
     @Override
@@ -77,10 +77,8 @@ public class BlessingFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.blessingRecyclerView);
         categorySpinner = view.findViewById(R.id.categorySpinner);
+        filterSpinner = view.findViewById(R.id.filterSpinner);
         btnPublish = view.findViewById(R.id.btnPublish);
-        btnFilterAll = view.findViewById(R.id.btnFilterAll);
-        btnFilterLiked = view.findViewById(R.id.btnFilterLiked);
-        btnFilterFavorited = view.findViewById(R.id.btnFilterFavorited);
         loadingView = view.findViewById(R.id.loadingView);
         emptyView = view.findViewById(R.id.emptyView);
         errorView = view.findViewById(R.id.errorView);
@@ -91,9 +89,7 @@ public class BlessingFragment extends Fragment {
         Log.d(TAG, "All views initialized");
         Log.d(TAG, "recyclerView: " + (recyclerView != null ? "OK" : "NULL"));
         Log.d(TAG, "btnPublish: " + (btnPublish != null ? "OK" : "NULL"));
-        Log.d(TAG, "btnFilterAll: " + (btnFilterAll != null ? "OK" : "NULL"));
-        Log.d(TAG, "btnFilterLiked: " + (btnFilterLiked != null ? "OK" : "NULL"));
-        Log.d(TAG, "btnFilterFavorited: " + (btnFilterFavorited != null ? "OK" : "NULL"));
+        Log.d(TAG, "filterSpinner: " + (filterSpinner != null ? "OK" : "NULL"));
         
         // Setup publish button
         btnPublish.setOnClickListener(v -> {
@@ -107,13 +103,8 @@ public class BlessingFragment extends Fragment {
             loadBlessingsFromApi();
         });
         
-        // Setup filter buttons
-        btnFilterAll.setOnClickListener(v -> setFilter("all"));
-        btnFilterLiked.setOnClickListener(v -> setFilter("liked"));
-        btnFilterFavorited.setOnClickListener(v -> setFilter("favorited"));
-        
-        // Set initial filter state
-        updateFilterButtons();
+        // Setup filter spinner
+        setupFilterSpinner();
 
         // Setup RecyclerView
         Log.d(TAG, "Setting up RecyclerView...");
@@ -145,6 +136,9 @@ public class BlessingFragment extends Fragment {
             }
         });
         Log.d(TAG, "Category spinner setup complete");
+        
+        // Setup filter spinner
+        setupFilterSpinner();
 
         // Adapter click listener
         adapter.setOnItemClickListener(new BlessingAdapter.OnItemClickListener() {
@@ -168,8 +162,14 @@ public class BlessingFragment extends Fragment {
                         public void onSuccess(BlessingsApiClient.InteractionResult result) {
                             item.isLiked = result.active;
                             item.likeCount = result.count;
+                            // 本地保存点赞状态
+                            saveLikeState(item.id, result.active);
                             adapter.notifyItemChanged(position);
                             Toast.makeText(getContext(), item.isLiked ? "❤️ 已点赞" : "取消点赞", Toast.LENGTH_SHORT).show();
+                            // 如果当前是点赞过滤，刷新列表
+                            if (currentFilter.equals("❤️ 赞过的")) {
+                                applyFilter();
+                            }
                         }
 
                         @Override
@@ -192,8 +192,14 @@ public class BlessingFragment extends Fragment {
                         public void onSuccess(BlessingsApiClient.InteractionResult result) {
                             item.isFavorite = result.active;
                             item.favoriteCount = result.count;
+                            // 本地保存收藏状态
+                            saveFavoriteState(item.id, result.active);
                             adapter.notifyItemChanged(position);
                             Toast.makeText(getContext(), item.isFavorite ? "⭐ 已收藏" : "取消收藏", Toast.LENGTH_SHORT).show();
+                            // 如果当前是收藏过滤，刷新列表
+                            if (currentFilter.equals("⭐ 收藏的")) {
+                                applyFilter();
+                            }
                         }
 
                         @Override
@@ -278,36 +284,58 @@ public class BlessingFragment extends Fragment {
      * 更新 Adapter 数据
      */
     /**
-     * 设置过滤条件
+     * 设置过滤 Spinner
      */
-    private void setFilter(String filter) {
-        Log.d(TAG, "Setting filter: " + filter);
-        currentFilter = filter;
-        updateFilterButtons();
-        applyFilter();
+    private void setupFilterSpinner() {
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            filters
+        );
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterSpinner.setAdapter(filterAdapter);
+        filterSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                currentFilter = filters[position];
+                Log.d(TAG, "Filter changed to: " + currentFilter);
+                applyFilter();
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+        Log.d(TAG, "Filter spinner setup complete");
     }
     
     /**
-     * 更新过滤按钮状态
+     * 从本地缓存获取点赞状态
      */
-    private void updateFilterButtons() {
-        // Reset all buttons to default style
-        btnFilterAll.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
-        btnFilterLiked.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
-        btnFilterFavorited.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
-        
-        // Highlight active filter
-        switch (currentFilter) {
-            case "all":
-                btnFilterAll.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
-                break;
-            case "liked":
-                btnFilterLiked.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
-                break;
-            case "favorited":
-                btnFilterFavorited.setBackgroundColor(getResources().getColor(android.R.color.darker_gray, null));
-                break;
-        }
+    private boolean isLocallyLiked(int blessingId) {
+        return prefs.getBoolean("liked_" + blessingId, false);
+    }
+    
+    /**
+     * 从本地缓存获取收藏状态
+     */
+    private boolean isLocallyFavorited(int blessingId) {
+        return prefs.getBoolean("favorited_" + blessingId, false);
+    }
+    
+    /**
+     * 本地保存点赞状态
+     */
+    private void saveLikeState(int blessingId, boolean liked) {
+        prefs.edit().putBoolean("liked_" + blessingId, liked).apply();
+        Log.d(TAG, "Saved like state for blessing " + blessingId + ": " + liked);
+    }
+    
+    /**
+     * 本地保存收藏状态
+     */
+    private void saveFavoriteState(int blessingId, boolean favorited) {
+        prefs.edit().putBoolean("favorited_" + blessingId, favorited).apply();
+        Log.d(TAG, "Saved favorite state for blessing " + blessingId + ": " + favorited);
     }
     
     /**
@@ -320,12 +348,20 @@ public class BlessingFragment extends Fragment {
             boolean matchesCategory = selectedCategory.equals("全部") || selectedCategory.equals(b.category);
             boolean matchesFilter = true;
             
+            // 使用本地缓存的状态进行过滤
+            boolean isLiked = isLocallyLiked(b.id);
+            boolean isFavorited = isLocallyFavorited(b.id);
+            
+            // 同步到 Blessing 对象
+            b.isLiked = isLiked;
+            b.isFavorited = isFavorited;
+            
             switch (currentFilter) {
-                case "liked":
-                    matchesFilter = b.isLiked;
+                case "❤️ 赞过的":
+                    matchesFilter = isLiked;
                     break;
-                case "favorited":
-                    matchesFilter = b.isFavorited;
+                case "⭐ 收藏的":
+                    matchesFilter = isFavorited;
                     break;
             }
             
@@ -334,7 +370,7 @@ public class BlessingFragment extends Fragment {
             }
         }
         
-        Log.d(TAG, "Filtered from " + allBlessings.size() + " to " + filtered.size() + " items");
+        Log.d(TAG, "Filtered from " + allBlessings.size() + " to " + filtered.size() + " items (filter=" + currentFilter + ")");
         updateAdapter(filtered);
     }
     
