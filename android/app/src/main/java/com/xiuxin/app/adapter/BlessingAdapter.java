@@ -36,6 +36,21 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         "fonts/zhenzongshengdiankaishu.ttf"
     };
     
+    // 背景图资源 ID 缓存（避免重复查找）
+    private static final int[] BG_RESOURCE_IDS = {
+        R.drawable.paper_2,
+        R.drawable.paper_3,
+        R.drawable.paper_low_1,
+        R.drawable.paper_low_2,
+        R.drawable.paper_low_3,
+        R.drawable.paper_low_4,
+        R.drawable.paper_low_5,
+        R.drawable.paper_low_6,
+        R.drawable.paper_low_7,
+        R.drawable.paper_low_8,
+        R.drawable.paper_low_9
+    };
+    
     private final Random random = new Random();
     private final Context context;
 
@@ -164,21 +179,22 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         }
         
         void bindGrid(BlessingItem item, int position) {
-            // 设置背景图
+            // 设置背景图（使用缓存的资源 ID 数组，避免动态查找）
             try {
                 if (item.bgPath != null && !item.bgPath.isEmpty()) {
+                    // 从 bgPath 提取索引
                     String bgName = item.bgPath.replace("drawable/", "").replace(".png", "").replace(".jpg", "");
-                    int resId = context.getResources().getIdentifier(bgName, "drawable", context.getPackageName());
-                    if (resId != 0) {
-                        cardBackground.setImageResource(resId);
+                    int bgIndex = getBgIndex(bgName);
+                    if (bgIndex >= 0 && bgIndex < BG_RESOURCE_IDS.length) {
+                        cardBackground.setImageResource(BG_RESOURCE_IDS[bgIndex]);
                     } else {
-                        cardBackground.setImageResource(R.drawable.paper_2);
+                        cardBackground.setImageResource(BG_RESOURCE_IDS[0]);
                     }
                 } else {
-                    cardBackground.setImageResource(R.drawable.paper_2);
+                    cardBackground.setImageResource(BG_RESOURCE_IDS[0]);
                 }
             } catch (Exception e) {
-                cardBackground.setImageResource(R.drawable.paper_2);
+                cardBackground.setImageResource(BG_RESOURCE_IDS[0]);
             }
             
             // 提取禅语文字（最多 100 字，最多 10 行）
@@ -286,6 +302,26 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
                 return String.format("%.1fk", count / 1000.0);
             }
             return String.valueOf(count);
+        }
+        
+        /**
+         * 根据背景图名称获取索引
+         */
+        private int getBgIndex(String bgName) {
+            switch (bgName) {
+                case "paper_2": return 0;
+                case "paper_3": return 1;
+                case "paper_low_1": return 2;
+                case "paper_low_2": return 3;
+                case "paper_low_3": return 4;
+                case "paper_low_4": return 5;
+                case "paper_low_5": return 6;
+                case "paper_low_6": return 7;
+                case "paper_low_7": return 8;
+                case "paper_low_8": return 9;
+                case "paper_low_9": return 10;
+                default: return 0;
+            }
         }
     }
     
