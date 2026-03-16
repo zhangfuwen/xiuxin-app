@@ -341,19 +341,26 @@ public class BlessingFragment extends Fragment {
         updateAdapter(filtered);
     }
     
+    private boolean commentsLoaded = false;
+    
     /**
-     * 为所有禅语加载评论
+     * 为所有禅语加载评论（只加载一次）
      */
     private void loadCommentsForAllBlessings() {
+        if (commentsLoaded) {
+            Log.d(TAG, "Comments already loaded, skipping");
+            return;
+        }
+        
         Log.d(TAG, "Loading comments for " + allBlessings.size() + " blessings");
         
-        // Load comments for first 20 blessings (to avoid too many API calls)
-        int maxToLoad = Math.min(allBlessings.size(), 20);
+        // Load comments for first 10 blessings only (to avoid too many API calls)
+        int maxToLoad = Math.min(allBlessings.size(), 10);
         final int[] loadedCount = {0};
         
         for (int i = 0; i < maxToLoad; i++) {
             final Blessing blessing = allBlessings.get(i);
-            if (blessing.id > 0) {
+            if (blessing.id > 0 && blessing.comments.isEmpty()) {
                 apiClient.getComments(blessing.id, new BlessingsApiClient.ApiCallback<List<Comment>>() {
                     @Override
                     public void onSuccess(List<Comment> comments) {
@@ -363,6 +370,7 @@ public class BlessingFragment extends Fragment {
                         
                         // Refresh adapter after all comments loaded
                         if (loadedCount[0] >= maxToLoad) {
+                            commentsLoaded = true;
                             Log.d(TAG, "All comments loaded, refreshing adapter");
                             applyFilter();
                         }
@@ -376,11 +384,19 @@ public class BlessingFragment extends Fragment {
                         
                         // Refresh adapter after all comments loaded (even if some failed)
                         if (loadedCount[0] >= maxToLoad) {
+                            commentsLoaded = true;
                             Log.d(TAG, "All comments loaded (with errors), refreshing adapter");
                             applyFilter();
                         }
                     }
                 });
+            } else {
+                loadedCount[0]++;
+                // Check if all done
+                if (loadedCount[0] >= maxToLoad) {
+                    commentsLoaded = true;
+                    applyFilter();
+                }
             }
         }
     }
@@ -399,9 +415,11 @@ public class BlessingFragment extends Fragment {
                 }
             }
             
+            Log.d(TAG, "Blessing id=" + blessing.id + " has " + item.comments.size() + " comments");
             items.add(item);
         }
         adapter.setBlessings(items);
+        Log.d(TAG, "Adapter updated with " + items.size() + " blessings");
         showContentState();
     }
     
