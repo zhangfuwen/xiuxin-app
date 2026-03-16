@@ -117,7 +117,15 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             categoryTag.setText(item.category);
             blessingText.setText(item.text);
             blessingSource.setText("—— " + item.source);
-            blessingPractice.setText("💡 " + item.practice);
+            
+            // Only show practice section if it has content
+            if (item.practice != null && !item.practice.trim().isEmpty()) {
+                blessingPractice.setText("💡 " + item.practice);
+                blessingPractice.setVisibility(View.VISIBLE);
+            } else {
+                blessingPractice.setVisibility(View.GONE);
+            }
+            
             likeCount.setText(formatCount(item.likeCount));
             favoriteCount.setText(formatCount(item.favoriteCount));
 
