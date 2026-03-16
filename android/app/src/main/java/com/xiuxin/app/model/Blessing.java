@@ -2,6 +2,8 @@ package com.xiuxin.app.model;
 
 import org.json.JSONObject;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 禅语/祝福数据模型
@@ -21,8 +23,11 @@ public class Blessing implements Serializable {
     public String updatedAt;
     public boolean isLiked;
     public boolean isFavorited;
+    public List<Comment> comments;
     
-    public Blessing() {}
+    public Blessing() {
+        this.comments = new ArrayList<>();
+    }
     
     /**
      * 从 JSON 对象创建 Blessing
