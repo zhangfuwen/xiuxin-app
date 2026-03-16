@@ -108,19 +108,65 @@
             android:text="856"
             android:textSize="13sp"
             android:textColor="#999999"
-            android:layout_marginStart="4dp" />
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="16dp" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        <ImageButton
+            android:id="@+id/commentBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_comment_outline"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:contentDescription="评论" />
 
         <TextView
+            android:id="@+id/commentCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="点击查看详情"
+            android:text="0"
+            android:textSize="13sp"
+            android:textColor="#999999"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <!-- 评论分割线 -->
+    <View
+        android:id="@+id/commentDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#f0f0f0"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:visibility="gone" />
+
+    <!-- 评论区域 -->
+    <LinearLayout
+        android:id="@+id/commentsSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- 第一条评论 -->
+        <TextView
+            android:id="@+id/firstCommentText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="#666666"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 查看更多评论 -->
+        <TextView
+            android:id="@+id/showMoreComments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="查看全部 3 条评论"
             android:textSize="12sp"
-            android:textColor="#cccccc" />
+            android:textColor="#8b7355"
+            android:padding="8dp"
+            android:background="?android:selectableItemBackground" />
     </LinearLayout>
 
 </LinearLayout>

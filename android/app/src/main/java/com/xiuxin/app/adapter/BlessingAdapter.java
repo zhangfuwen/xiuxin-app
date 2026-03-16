@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.xiuxin.app.R;
 import com.xiuxin.app.model.Blessing;
+import com.xiuxin.app.model.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         public boolean isLiked;
         public boolean isFavorite;
         public int id; // API ID
+        public List<Comment> comments; // 评论列表
 
         public BlessingItem(String text, String source, String practice, String category) {
             this.text = text;
@@ -38,6 +41,7 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             this.isLiked = false;
             this.isFavorite = false;
             this.id = 0;
+            this.comments = new ArrayList<>();
         }
         
         /**
@@ -98,8 +102,11 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
 
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView categoryTag, blessingText, blessingSource, blessingPractice;
-        TextView likeCount, favoriteCount;
-        ImageButton likeBtn, favoriteBtn;
+        TextView likeCount, favoriteCount, commentCount;
+        ImageButton likeBtn, favoriteBtn, commentBtn;
+        LinearLayout commentsSection;
+        TextView firstCommentText, showMoreComments;
+        View commentDivider;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -109,8 +116,14 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             blessingPractice = itemView.findViewById(R.id.blessingPractice);
             likeCount = itemView.findViewById(R.id.likeCount);
             favoriteCount = itemView.findViewById(R.id.favoriteCount);
+            commentCount = itemView.findViewById(R.id.commentCount);
             likeBtn = itemView.findViewById(R.id.likeBtn);
             favoriteBtn = itemView.findViewById(R.id.favoriteBtn);
+            commentBtn = itemView.findViewById(R.id.commentBtn);
+            commentsSection = itemView.findViewById(R.id.commentsSection);
+            firstCommentText = itemView.findViewById(R.id.firstCommentText);
+            showMoreComments = itemView.findViewById(R.id.showMoreComments);
+            commentDivider = itemView.findViewById(R.id.commentDivider);
         }
 
         void bind(BlessingItem item, int position) {
@@ -128,10 +141,32 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
             
             likeCount.setText(formatCount(item.likeCount));
             favoriteCount.setText(formatCount(item.favoriteCount));
+            commentCount.setText(String.valueOf(item.comments.size()));
 
             // Update button states
             likeBtn.setImageResource(item.isLiked ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
             favoriteBtn.setImageResource(item.isFavorite ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
+
+            // Show/hide comments section
+            if (item.comments != null && !item.comments.isEmpty()) {
+                commentDivider.setVisibility(View.VISIBLE);
+                commentsSection.setVisibility(View.VISIBLE);
+                
+                // Show first comment
+                Comment firstComment = item.comments.get(0);
+                firstCommentText.setText(firstComment.userName + ": " + firstComment.content);
+                
+                // Show "show more" if there are more comments
+                if (item.comments.size() > 1) {
+                    showMoreComments.setVisibility(View.VISIBLE);
+                    showMoreComments.setText("查看全部 " + item.comments.size() + " 条评论");
+                } else {
+                    showMoreComments.setVisibility(View.GONE);
+                }
+            } else {
+                commentDivider.setVisibility(View.GONE);
+                commentsSection.setVisibility(View.GONE);
+            }
 
             // Click listeners
             itemView.setOnClickListener(v -> {
@@ -150,6 +185,10 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
                 item.favoriteCount += item.isFavorite ? 1 : -1;
                 notifyItemChanged(position);
                 if (listener != null) listener.onFavoriteClick(item, position);
+            });
+            
+            commentBtn.setOnClickListener(v -> {
+                if (listener != null) listener.onItemClick(item, position);
             });
         }
 
