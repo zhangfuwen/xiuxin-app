@@ -29,8 +29,8 @@ public class Blessing implements Serializable {
     
     public Blessing() {
         this.comments = new ArrayList<>();
-        this.fontPath = getRandomFont();
-        this.bgPath = getRandomBg();
+        this.fontPath = "";
+        this.bgPath = "";
     }
     
     /**

@@ -158,6 +158,8 @@ public class LocalBlessingDb extends SQLiteOpenHelper {
                 values.put(COLUMN_UPDATED_AT, blessing.updatedAt);
                 values.put(COLUMN_IS_LIKED, blessing.isLiked ? 1 : 0);
                 values.put(COLUMN_IS_FAVORITED, blessing.isFavorited ? 1 : 0);
+                values.put(COLUMN_FONT_PATH, blessing.fontPath);
+                values.put(COLUMN_BG_PATH, blessing.bgPath);
                 
                 db.replace(TABLE_NAME, null, values);
             }
