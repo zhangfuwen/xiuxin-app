@@ -1,5 +1,7 @@
 package com.xiuxin.app.adapter;
 
+import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +18,29 @@ import com.xiuxin.app.model.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHolder> {
+
+    // 中文字体列表
+    private static final String[] CHINESE_FONTS = {
+        "fonts/hongleibanshujianti_2.ttf",
+        "fonts/pangmenzhengdaozhenguikaiti_2.ttf",
+        "fonts/qiantubifengshouxieti_2.ttf",
+        "fonts/qiantuxianmoti_2.ttf",
+        "fonts/sanjixingkaijianti_cu_2.ttf",
+        "fonts/tanugo_round_regular.otf",
+        "fonts/yangrendongzhushiti_light_2.ttf",
+        "fonts/yanshixiaxingkai_2.ttf",
+        "fonts/zhenzongshengdiankaishu.ttf"
+    };
+    
+    private final Random random = new Random();
+    private final Context context;
+
+    public BlessingAdapter(Context context) {
+        this.context = context;
+    }
 
     public static class BlessingItem {
         public String text;
@@ -129,6 +152,17 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         void bind(BlessingItem item, int position) {
             categoryTag.setText(item.category);
             blessingText.setText(item.text);
+            
+            // 随机应用中文字体
+            try {
+                String randomFont = CHINESE_FONTS[random.nextInt(CHINESE_FONTS.length)];
+                Typeface typeface = Typeface.createFromAsset(context.getAssets(), randomFont);
+                blessingText.setTypeface(typeface);
+            } catch (Exception e) {
+                // 如果字体加载失败，使用默认字体
+                blessingText.setTypeface(null);
+            }
+            
             blessingSource.setText("—— " + item.source);
             
             // Only show practice section if it has content

@@ -114,7 +114,7 @@ public class BlessingFragment extends Fragment {
         // Setup RecyclerView
         Log.d(TAG, "Setting up RecyclerView...");
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new BlessingAdapter();
+        adapter = new BlessingAdapter(getContext());
         recyclerView.setAdapter(adapter);
         Log.d(TAG, "RecyclerView setup complete");
 
