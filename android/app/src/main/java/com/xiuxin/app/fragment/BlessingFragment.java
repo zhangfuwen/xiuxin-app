@@ -151,6 +151,7 @@ public class BlessingFragment extends Fragment {
             public void onItemClick(BlessingAdapter.BlessingItem item, int position) {
                 // Open detail activity
                 Intent intent = new Intent(getContext(), BlessingDetailActivity.class);
+                intent.putExtra("id", item.id);
                 intent.putExtra("text", item.text);
                 intent.putExtra("source", item.source);
                 intent.putExtra("practice", item.practice);
