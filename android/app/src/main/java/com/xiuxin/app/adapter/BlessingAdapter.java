@@ -13,6 +13,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+
 import com.xiuxin.app.R;
 import com.xiuxin.app.model.Blessing;
 import com.xiuxin.app.model.Comment;
@@ -179,23 +182,28 @@ public class BlessingAdapter extends RecyclerView.Adapter<BlessingAdapter.ViewHo
         }
         
         void bindGrid(BlessingItem item, int position) {
-            // 设置背景图（使用缓存的资源 ID 数组，避免动态查找）
+            // 使用 Glide 加载背景图（支持缓存和异步加载）
+            int bgResId;
             try {
                 if (item.bgPath != null && !item.bgPath.isEmpty()) {
-                    // 从 bgPath 提取索引
                     String bgName = item.bgPath.replace("drawable/", "").replace(".png", "").replace(".jpg", "");
                     int bgIndex = getBgIndex(bgName);
-                    if (bgIndex >= 0 && bgIndex < BG_RESOURCE_IDS.length) {
-                        cardBackground.setImageResource(BG_RESOURCE_IDS[bgIndex]);
-                    } else {
-                        cardBackground.setImageResource(BG_RESOURCE_IDS[0]);
-                    }
+                    bgResId = (bgIndex >= 0 && bgIndex < BG_RESOURCE_IDS.length) 
+                        ? BG_RESOURCE_IDS[bgIndex] 
+                        : BG_RESOURCE_IDS[0];
                 } else {
-                    cardBackground.setImageResource(BG_RESOURCE_IDS[0]);
+                    bgResId = BG_RESOURCE_IDS[0];
                 }
             } catch (Exception e) {
-                cardBackground.setImageResource(BG_RESOURCE_IDS[0]);
+                bgResId = BG_RESOURCE_IDS[0];
             }
+            
+            // Glide 加载：自动内存/磁盘缓存，异步加载不卡顿
+            Glide.with(context)
+                .load(bgResId)
+                .transition(DrawableTransitionOptions.withCrossFade()) // 淡入过渡
+                .centerCrop()
+                .into(cardBackground);
             
             // 提取禅语文字（最多 100 字，最多 10 行）
             String text = item.text;
