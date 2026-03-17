@@ -1,7 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary brand colors -->
     <color name="practiced_color">#8b7355</color>
     <color name="today_color">#f5f0eb</color>
     <color name="today_stroke_color">#8b7355</color>
     <color name="today_text_color">#8b7355</color>
+    
+    <!-- Background colors -->
+    <color name="background_primary">#f5f0eb</color>
+    <color name="background_secondary">#ffffff</color>
+    <color name="background_card">#ffffff</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#5a4a42</color>
+    <color name="text_secondary">#8b7d72</color>
+    <color name="text_muted">#a89f96</color>
+    
+    <!-- Accent colors -->
+    <color name="accent_primary">#8b7355</color>
+    <color name="accent_secondary">#a89078</color>
+    
+    <!-- Breathing circle colors -->
+    <color name="breathing_circle_start">#7ec8a3</color>
+    <color name="breathing_circle_center">#5fb891</color>
+    <color name="breathing_circle_end">#4a9f7a</color>
+    <color name="breathing_outer_glow">#e8e0d5</color>
+    
+    <!-- UI element colors -->
+    <color name="divider">#e0d8d0</color>
+    <color name="shadow">#20000000</color>
 </resources>

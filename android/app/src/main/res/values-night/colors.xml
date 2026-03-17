@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme colors for meditation app -->
+    <color name="practiced_color">#a89078</color>
+    <color name="today_color">#2d2825</color>
+    <color name="today_stroke_color">#a89078</color>
+    <color name="today_text_color">#d4c5b8</color>
+    
+    <!-- Background colors -->
+    <color name="background_primary">#1a1816</color>
+    <color name="background_secondary">#2d2825</color>
+    <color name="background_card">#35302c</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#f5f0eb</color>
+    <color name="text_secondary">#c9b8a8</color>
+    <color name="text_muted">#8b7d72</color>
+    
+    <!-- Accent colors -->
+    <color name="accent_primary">#a89078</color>
+    <color name="accent_secondary">#8b7355</color>
+    
+    <!-- Breathing circle colors (darker variant) -->
+    <color name="breathing_circle_start">#5fa880</color>
+    <color name="breathing_circle_center">#4a9f70</color>
+    <color name="breathing_circle_end">#3d8a60</color>
+    <color name="breathing_outer_glow">#3d3834</color>
+</resources>

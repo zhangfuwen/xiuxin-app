@@ -1,11 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Xiuxin" parent="Theme.AppCompat.Light.NoActionBar">
+    <!-- Light Theme -->
+    <style name="Theme.Xiuxin" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color -->
         <item name="colorPrimary">#8b7355</item>
-        <item name="colorPrimaryDark">#5a4a42</item>
-        <item name="colorAccent">#8b7355</item>
+        <item name="colorPrimaryVariant">#5a4a42</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">#a89078</item>
+        <item name="colorSecondaryVariant">#8b7355</item>
+        <item name="colorOnSecondary">#ffffff</item>
+        
+        <!-- Status bar -->
         <item name="android:statusBarColor">#5a4a42</item>
-        <item name="android:navigationBarColor">#F5F0EB</item>
-        <item name="android:windowBackground">#F5F0EB</item>
+        <item name="android:navigationBarColor">#f5f0eb</item>
+        
+        <!-- Background -->
+        <item name="android:windowBackground">#f5f0eb</item>
+        <item name="android:colorBackground">#f5f0eb</item>
+        
+        <!-- Text appearance -->
+        <item name="android:textColorPrimary">#5a4a42</item>
+        <item name="android:textColorSecondary">#8b7d72</item>
+        
+        <!-- Font family -->
+        <item name="android:fontFamily">serif</item>
+    </style>
+    
+    <!-- Dark Theme -->
+    <style name="Theme.Xiuxin.Dark" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">#a89078</item>
+        <item name="colorPrimaryVariant">#8b7355</item>
+        <item name="colorOnPrimary">#1a1816</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">#8b7355</item>
+        <item name="colorSecondaryVariant">#6b5a45</item>
+        <item name="colorOnSecondary">#ffffff</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">#1a1816</item>
+        <item name="android:navigationBarColor">#1a1816</item>
+        
+        <!-- Background -->
+        <item name="android:windowBackground">#1a1816</item>
+        <item name="android:colorBackground">#1a1816</item>
+        
+        <!-- Text appearance -->
+        <item name="android:textColorPrimary">#f5f0eb</item>
+        <item name="android:textColorSecondary">#c9b8a8</item>
+        
+        <!-- Font family -->
+        <item name="android:fontFamily">serif</item>
+    </style>
+    
+    <!-- Button styles -->
+    <style name="Button.Primary.Xiuxin" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">#8b7355</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:fontFamily">serif</item>
+    </style>
+    
+    <style name="Button.Secondary.Xiuxin" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">#8b7355</item>
+        <item name="android:textColor">#8b7355</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:fontFamily">serif</item>
     </style>
 </resources>
