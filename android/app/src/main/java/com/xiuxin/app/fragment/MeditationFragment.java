@@ -15,9 +15,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.xiuxin.app.R;
+import com.xiuxin.app.adapter.MeditationMethodAdapter;
+import com.xiuxin.app.model.MeditationMethod;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class MeditationFragment extends Fragment {
@@ -25,10 +31,11 @@ public class MeditationFragment extends Fragment {
     private TextView meditationTimer, meditationMode, meditationGuide;
     private TextView meditationProgress, customDuration;
     private TextView totalMinutes, totalSessions;
-    private Button mode5minBtn, mode10minBtn, mode20minBtn, modeBreathingBtn;
     private Button startCustomBtn, stopMeditationBtn;
     private Button btnDecrease, btnIncrease;
     private View breathingCircle, breathingCircleOuter;
+    private RecyclerView methodsRecyclerView;
+    private MeditationMethodAdapter methodsAdapter;
     private SharedPreferences prefs;
     private Handler handler;
     private Runnable timerRunnable;
@@ -41,10 +48,12 @@ public class MeditationFragment extends Fragment {
     private int breathCount = 0;
     private boolean isBreathingMode = false;
     private int currentBreathingMode = 0; // 0: 4-7-8, 1: Box, 2: Coherent, 3: Custom
+    private int selectedMethodIndex = -1; // Currently selected method index
 
-    // Meditation modes with guides
-    private final String[] modeNames = {"数息观", "随息观", "止观", "慈心观", "身体扫描", "呼吸法门"};
-    private final String[] modeGuides = {
+    // Meditation methods data
+    private final List<MeditationMethod> methods = new ArrayList<>();
+    private final String[] methodNames = {"数息观", "随息观", "止观", "慈心观", "身体扫描", "呼吸法门"};
+    private final String[] methodGuides = {
         "专注呼吸，数息入定。吸气数 1，呼气数 2，数到 10 重新开始。",
         "随顺呼吸，不控制不干预。只是觉察气息的进出。",
         "止息妄念，观照当下。让心自然地安住。",
@@ -88,11 +97,7 @@ public class MeditationFragment extends Fragment {
         totalSessions = view.findViewById(R.id.totalSessions);
         breathingCircle = view.findViewById(R.id.breathingCircle);
         breathingCircleOuter = view.findViewById(R.id.breathingCircleOuter);
-        
-        mode5minBtn = view.findViewById(R.id.mode5minBtn);
-        mode10minBtn = view.findViewById(R.id.mode10minBtn);
-        mode20minBtn = view.findViewById(R.id.mode20minBtn);
-        modeBreathingBtn = view.findViewById(R.id.modeBreathingBtn);
+        methodsRecyclerView = view.findViewById(R.id.methodsRecyclerView);
         startCustomBtn = view.findViewById(R.id.startCustomBtn);
         stopMeditationBtn = view.findViewById(R.id.stopMeditationBtn);
         btnDecrease = view.findViewById(R.id.btnDecrease);
@@ -100,14 +105,11 @@ public class MeditationFragment extends Fragment {
 
         handler = new Handler();
 
+        // Initialize methods list
+        initializeMethodsList();
+
         // Load stats
         loadStats();
-
-        // Preset buttons
-        mode5minBtn.setOnClickListener(v -> startMeditation(5, 0));
-        mode10minBtn.setOnClickListener(v -> startMeditation(10, 1));
-        mode20minBtn.setOnClickListener(v -> startMeditation(20, 2));
-        modeBreathingBtn.setOnClickListener(v -> startMeditation(10, 5)); // 10 minutes breathing mode
         
         // Custom duration controls
         btnDecrease.setOnClickListener(v -> {
@@ -124,10 +126,58 @@ public class MeditationFragment extends Fragment {
             }
         });
         
-        startCustomBtn.setOnClickListener(v -> startMeditation(customMinutes, 3));
+        startCustomBtn.setOnClickListener(v -> {
+            if (selectedMethodIndex >= 0) {
+                startMeditation(customMinutes, selectedMethodIndex);
+            } else {
+                Toast.makeText(getContext(), "请先选择一个法门", Toast.LENGTH_SHORT).show();
+            }
+        });
         stopMeditationBtn.setOnClickListener(v -> stopMeditation());
 
         updateCustomDurationDisplay();
+    }
+    
+    /**
+     * Initialize meditation methods list
+     */
+    private void initializeMethodsList() {
+        methods.clear();
+        for (int i = 0; i < methodNames.length; i++) {
+            methods.add(new MeditationMethod(methodNames[i], methodGuides[i]));
+        }
+        
+        methodsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        methodsAdapter = new MeditationMethodAdapter(methods, method -> {
+            selectMethod(method);
+        });
+        methodsRecyclerView.setAdapter(methodsAdapter);
+    }
+    
+    /**
+     * Select a meditation method
+     */
+    private void selectMethod(MeditationMethod method) {
+        if (isRunning) return;
+        
+        // Find index
+        for (int i = 0; i < methods.size(); i++) {
+            if (methods.get(i).name.equals(method.name)) {
+                selectedMethodIndex = i;
+                meditationMode.setText("🧘 " + method.name);
+                meditationGuide.setText(method.guide);
+                
+                // Update adapter selection
+                methodsAdapter.setSelectedIndex(i);
+                methodsAdapter.notifyDataSetChanged();
+                
+                // Auto-start if breathing mode
+                if (i == 5) { // Breathing mode
+                    startMeditation(customMinutes, i);
+                }
+                break;
+            }
+        }
     }
 
     private void updateCustomDurationDisplay() {
@@ -138,7 +188,7 @@ public class MeditationFragment extends Fragment {
         if (isRunning) return;
 
         // Check if this is breathing mode (index 5)
-        if (modeIndex == 5) {
+        if (selectedMethodIndex == 5) {
             startBreathingMode(minutes);
             return;
         }
@@ -148,8 +198,8 @@ public class MeditationFragment extends Fragment {
         totalSeconds = minutes * 60;
         secondsLeft = totalSeconds;
 
-        String modeName = modeNames[modeIndex];
-        String guide = modeGuides[modeIndex];
+        String modeName = methodNames[selectedMethodIndex];
+        String guide = methodGuides[selectedMethodIndex];
 
         meditationMode.setText("🧘 " + modeName);
         meditationGuide.setText(guide);
@@ -400,21 +450,19 @@ public class MeditationFragment extends Fragment {
     }
 
     private void setAllButtonsEnabled(boolean enabled) {
-        mode5minBtn.setEnabled(enabled);
-        mode10minBtn.setEnabled(enabled);
-        mode20minBtn.setEnabled(enabled);
-        modeBreathingBtn.setEnabled(enabled);
         startCustomBtn.setEnabled(enabled);
         btnDecrease.setEnabled(enabled);
         btnIncrease.setEnabled(enabled);
         
-        mode5minBtn.setAlpha(enabled ? 1.0f : 0.5f);
-        mode10minBtn.setAlpha(enabled ? 1.0f : 0.5f);
-        mode20minBtn.setAlpha(enabled ? 1.0f : 0.5f);
-        modeBreathingBtn.setAlpha(enabled ? 1.0f : 0.5f);
         startCustomBtn.setAlpha(enabled ? 1.0f : 0.5f);
         btnDecrease.setAlpha(enabled ? 1.0f : 0.5f);
         btnIncrease.setAlpha(enabled ? 1.0f : 0.5f);
+        
+        // Disable methods list during meditation
+        if (methodsRecyclerView != null) {
+            methodsRecyclerView.setEnabled(enabled);
+            methodsRecyclerView.setAlpha(enabled ? 1.0f : 0.5f);
+        }
     }
 
     private void loadStats() {
