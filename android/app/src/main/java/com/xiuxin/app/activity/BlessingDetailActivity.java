@@ -24,7 +24,7 @@ import java.util.Random;
 
 public class BlessingDetailActivity extends AppCompatActivity {
 
-    private TextView categoryTag, blessingText, blessingSource, blessingPractice;
+    private TextView categoryTag, blessingText, blessingTextPlain, blessingSource, blessingPractice;
     private ImageView cardBackground;
     private Button likeBtn, favoriteBtn, shareBtn;
     private ImageButton closeBtn;
@@ -49,6 +49,19 @@ public class BlessingDetailActivity extends AppCompatActivity {
         R.drawable.paper_low_8,
         R.drawable.paper_low_9
     };
+    
+    // 中文字体列表
+    private static final String[] CHINESE_FONTS = {
+        "fonts/hongleibanshujianti_2.ttf",
+        "fonts/pangmenzhengdaozhenguikaiti_2.ttf",
+        "fonts/qiantubifengshouxieti_2.ttf",
+        "fonts/qiantuxianmoti_2.ttf",
+        "fonts/sanjixingkaijianti_cu_2.ttf",
+        "fonts/tanugo_round_regular.otf",
+        "fonts/yangrendongzhushiti_light_2.ttf",
+        "fonts/yanshixiaxingkai_2.ttf",
+        "fonts/zhenzongshengdiankaishu.ttf"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +74,7 @@ public class BlessingDetailActivity extends AppCompatActivity {
         // Bind views
         categoryTag = findViewById(R.id.categoryTag);
         blessingText = findViewById(R.id.blessingText);
+        blessingTextPlain = findViewById(R.id.blessingTextPlain);
         blessingSource = findViewById(R.id.blessingSource);
         blessingPractice = findViewById(R.id.blessingPractice);
         cardBackground = findViewById(R.id.cardBackground);
@@ -82,6 +96,7 @@ public class BlessingDetailActivity extends AppCompatActivity {
         // Display data
         categoryTag.setText(category);
         blessingText.setText(text);
+        blessingTextPlain.setText(text);
         blessingSource.setText("—— " + source);
         
         // Load random background image
@@ -91,6 +106,18 @@ public class BlessingDetailActivity extends AppCompatActivity {
             .transition(DrawableTransitionOptions.withCrossFade())
             .centerCrop()
             .into(cardBackground);
+        
+        // Apply random font to both card text and plain text
+        try {
+            String randomFont = CHINESE_FONTS[random.nextInt(CHINESE_FONTS.length)];
+            android.graphics.Typeface typeface = android.graphics.Typeface.createFromAsset(getAssets(), randomFont);
+            blessingText.setTypeface(typeface);
+            blessingTextPlain.setTypeface(typeface);
+        } catch (Exception e) {
+            // If font loading fails, use default font
+            blessingText.setTypeface(null);
+            blessingTextPlain.setTypeface(null);
+        }
         if (practice != null && !practice.trim().isEmpty()) {
             blessingPractice.setText("💡 " + practice);
             blessingPractice.setVisibility(android.view.View.VISIBLE);

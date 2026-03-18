@@ -96,7 +96,29 @@
             android:textSize="16sp"
             android:textColor="#8b7355"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="32dp" />
+            android:layout_marginBottom="16dp" />
+
+        <!-- 纯文本显示区域（卡片下方） -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="原文"
+            android:textSize="14sp"
+            android:textColor="#8b7355"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/blessingTextPlain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="心本无生因境有，境若无时心亦无。"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:lineSpacingExtra="8dp"
+            android:fontFamily="sans-serif"
+            android:layout_marginBottom="16dp" />
 
         <!-- 装饰线 -->
         <View
