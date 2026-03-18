@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#f8f5f2"
@@ -38,19 +39,53 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="32dp" />
 
-        <!-- 正念文字 - 大字体 -->
-        <TextView
-            android:id="@+id/blessingText"
+        <!-- 正念卡片 - 带背景图 -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="心本无生因境有，境若无时心亦无。"
-            android:textSize="32sp"
-            android:textColor="#333333"
-            android:lineSpacingExtra="16dp"
-            android:fontFamily="serif"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- 背景图 -->
+                <ImageView
+                    android:id="@+id/cardBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/paper_2" />
+
+                <!-- 渐变遮罩 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@drawable/card_gradient_overlay" />
+
+                <!-- 禅语文字 -->
+                <TextView
+                    android:id="@+id/blessingText"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:text="心本无生因境有，境若无时心亦无。"
+                    android:textSize="28sp"
+                    android:textColor="#ffffff"
+                    android:lineSpacingExtra="12dp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="2"
+                    android:shadowRadius="4" />
+
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- 来源 -->
         <TextView
@@ -58,10 +93,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="—— 《楞严经》"
-            android:textSize="18sp"
-            android:textColor="#999999"
+            android:textSize="16sp"
+            android:textColor="#8b7355"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="48dp" />
+            android:layout_marginBottom="32dp" />
 
         <!-- 装饰线 -->
         <View

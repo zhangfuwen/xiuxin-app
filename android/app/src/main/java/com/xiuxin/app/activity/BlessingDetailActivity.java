@@ -5,21 +5,27 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+
 import com.xiuxin.app.R;
 import com.xiuxin.app.api.BlessingsApiClient;
 import com.xiuxin.app.model.Comment;
 
 import java.util.List;
+import java.util.Random;
 
 public class BlessingDetailActivity extends AppCompatActivity {
 
     private TextView categoryTag, blessingText, blessingSource, blessingPractice;
+    private ImageView cardBackground;
     private Button likeBtn, favoriteBtn, shareBtn;
     private ImageButton closeBtn;
     private LinearLayout commentsSection;
@@ -27,6 +33,22 @@ public class BlessingDetailActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private BlessingsApiClient apiClient;
     private int blessingId;
+    private final Random random = new Random();
+    
+    // 背景图资源 ID 列表
+    private static final int[] BG_RESOURCE_IDS = {
+        R.drawable.paper_2,
+        R.drawable.paper_3,
+        R.drawable.paper_low_1,
+        R.drawable.paper_low_2,
+        R.drawable.paper_low_3,
+        R.drawable.paper_low_4,
+        R.drawable.paper_low_5,
+        R.drawable.paper_low_6,
+        R.drawable.paper_low_7,
+        R.drawable.paper_low_8,
+        R.drawable.paper_low_9
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +63,7 @@ public class BlessingDetailActivity extends AppCompatActivity {
         blessingText = findViewById(R.id.blessingText);
         blessingSource = findViewById(R.id.blessingSource);
         blessingPractice = findViewById(R.id.blessingPractice);
+        cardBackground = findViewById(R.id.cardBackground);
         likeBtn = findViewById(R.id.likeBtn);
         favoriteBtn = findViewById(R.id.favoriteBtn);
         shareBtn = findViewById(R.id.shareBtn);
@@ -60,6 +83,14 @@ public class BlessingDetailActivity extends AppCompatActivity {
         categoryTag.setText(category);
         blessingText.setText(text);
         blessingSource.setText("—— " + source);
+        
+        // Load random background image
+        int bgResId = BG_RESOURCE_IDS[random.nextInt(BG_RESOURCE_IDS.length)];
+        Glide.with(this)
+            .load(bgResId)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .centerCrop()
+            .into(cardBackground);
         if (practice != null && !practice.trim().isEmpty()) {
             blessingPractice.setText("💡 " + practice);
             blessingPractice.setVisibility(android.view.View.VISIBLE);
