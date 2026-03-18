@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,10 @@ public class PublishBlessingActivity extends AppCompatActivity {
     
     // Main input
     private EditText editText;
+    
+    // Preview
+    private ImageView previewBackground;
+    private TextView previewText;
     
     // Advanced fields (hidden by default)
     private LinearLayout advancedFieldsLayout;
@@ -121,6 +126,10 @@ public class PublishBlessingActivity extends AppCompatActivity {
         // Main input
         editText = findViewById(R.id.editText);
         
+        // Preview
+        previewBackground = findViewById(R.id.previewBackground);
+        previewText = findViewById(R.id.previewText);
+        
         // Advanced fields
         advancedFieldsLayout = findViewById(R.id.advancedFieldsLayout);
         sourceEdit = findViewById(R.id.sourceEdit);
@@ -140,6 +149,9 @@ public class PublishBlessingActivity extends AppCompatActivity {
         // Set default background
         updateBgSelector();
         
+        // Update preview
+        updatePreview();
+        
         // Background selector click
         bgSelector.setOnClickListener(v -> cycleBackground());
         
@@ -150,6 +162,24 @@ public class PublishBlessingActivity extends AppCompatActivity {
         
         // Hide advanced fields initially
         advancedFieldsLayout.setVisibility(View.GONE);
+        
+        // Listen to text changes for live preview
+        editText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    previewText.setText(s);
+                } else {
+                    previewText.setText("输入禅语内容，在此预览效果");
+                }
+            }
+            
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
     }
     
     private void setupListeners() {
@@ -192,6 +222,7 @@ public class PublishBlessingActivity extends AppCompatActivity {
     private void cycleFont() {
         currentFontIndex = (currentFontIndex + 1) % FONTS.length;
         updateFontSelector();
+        updatePreview();
         Log.d(TAG, "Font changed to: " + FONTS[currentFontIndex]);
     }
     
@@ -203,23 +234,52 @@ public class PublishBlessingActivity extends AppCompatActivity {
             try {
                 android.graphics.Typeface typeface = android.graphics.Typeface.createFromAsset(getAssets(), FONT_PATHS[currentFontIndex]);
                 editText.setTypeface(typeface);
+                previewText.setTypeface(typeface);
             } catch (Exception e) {
                 editText.setTypeface(null);
+                previewText.setTypeface(null);
             }
         } else {
             editText.setTypeface(null);
+            previewText.setTypeface(null);
         }
     }
     
     private void cycleBackground() {
         currentBgIndex = (currentBgIndex + 1) % BG_NAMES.length;
         updateBgSelector();
+        updatePreview();
         Log.d(TAG, "Background changed to: " + BG_NAMES[currentBgIndex]);
     }
     
     private void updateBgSelector() {
         TextView bgSelector = findViewById(R.id.bgSelector);
         bgSelector.setText("🖼️ 背景：" + BG_NAMES[currentBgIndex]);
+    }
+    
+    /**
+     * Update preview card with current background and text
+     */
+    private void updatePreview() {
+        // Load background image
+        try {
+            String bgName = BG_NAMES[currentBgIndex].replace(".jpg", "").replace(".png", "");
+            int bgResId = getResources().getIdentifier(bgName, "drawable", getPackageName());
+            if (bgResId == 0) {
+                bgResId = R.drawable.paper_2;
+            }
+            previewBackground.setImageResource(bgResId);
+        } catch (Exception e) {
+            previewBackground.setImageResource(R.drawable.paper_2);
+        }
+        
+        // Update preview text
+        String inputText = editText.getText().toString().trim();
+        if (inputText.length() > 0) {
+            previewText.setText(inputText);
+        } else {
+            previewText.setText("输入禅语内容，在此预览效果");
+        }
     }
     
     private void validateAndPublish() {
