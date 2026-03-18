@@ -25,7 +25,7 @@ public class MeditationFragment extends Fragment {
     private TextView meditationTimer, meditationMode, meditationGuide;
     private TextView meditationProgress, customDuration;
     private TextView totalMinutes, totalSessions;
-    private Button mode5minBtn, mode10minBtn, mode20minBtn;
+    private Button mode5minBtn, mode10minBtn, mode20minBtn, modeBreathingBtn;
     private Button startCustomBtn, stopMeditationBtn;
     private Button btnDecrease, btnIncrease;
     private View breathingCircle, breathingCircleOuter;
@@ -92,6 +92,7 @@ public class MeditationFragment extends Fragment {
         mode5minBtn = view.findViewById(R.id.mode5minBtn);
         mode10minBtn = view.findViewById(R.id.mode10minBtn);
         mode20minBtn = view.findViewById(R.id.mode20minBtn);
+        modeBreathingBtn = view.findViewById(R.id.modeBreathingBtn);
         startCustomBtn = view.findViewById(R.id.startCustomBtn);
         stopMeditationBtn = view.findViewById(R.id.stopMeditationBtn);
         btnDecrease = view.findViewById(R.id.btnDecrease);
@@ -102,10 +103,11 @@ public class MeditationFragment extends Fragment {
         // Load stats
         loadStats();
 
-        // Preset buttons - now cycle through modes
+        // Preset buttons
         mode5minBtn.setOnClickListener(v -> startMeditation(5, 0));
         mode10minBtn.setOnClickListener(v -> startMeditation(10, 1));
         mode20minBtn.setOnClickListener(v -> startMeditation(20, 2));
+        modeBreathingBtn.setOnClickListener(v -> startMeditation(10, 5)); // 10 minutes breathing mode
         
         // Custom duration controls
         btnDecrease.setOnClickListener(v -> {
@@ -401,6 +403,7 @@ public class MeditationFragment extends Fragment {
         mode5minBtn.setEnabled(enabled);
         mode10minBtn.setEnabled(enabled);
         mode20minBtn.setEnabled(enabled);
+        modeBreathingBtn.setEnabled(enabled);
         startCustomBtn.setEnabled(enabled);
         btnDecrease.setEnabled(enabled);
         btnIncrease.setEnabled(enabled);
@@ -408,6 +411,7 @@ public class MeditationFragment extends Fragment {
         mode5minBtn.setAlpha(enabled ? 1.0f : 0.5f);
         mode10minBtn.setAlpha(enabled ? 1.0f : 0.5f);
         mode20minBtn.setAlpha(enabled ? 1.0f : 0.5f);
+        modeBreathingBtn.setAlpha(enabled ? 1.0f : 0.5f);
         startCustomBtn.setAlpha(enabled ? 1.0f : 0.5f);
         btnDecrease.setAlpha(enabled ? 1.0f : 0.5f);
         btnIncrease.setAlpha(enabled ? 1.0f : 0.5f);
