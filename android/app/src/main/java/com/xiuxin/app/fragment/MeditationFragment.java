@@ -28,23 +28,39 @@ public class MeditationFragment extends Fragment {
     private Button mode5minBtn, mode10minBtn, mode20minBtn;
     private Button startCustomBtn, stopMeditationBtn;
     private Button btnDecrease, btnIncrease;
+    private View breathingCircle, breathingCircleOuter;
     private SharedPreferences prefs;
     private Handler handler;
     private Runnable timerRunnable;
+    private Runnable breathingRunnable;
     private int secondsLeft;
     private int totalSeconds;
     private boolean isRunning = false;
     private int customMinutes = 15;
+    private int breathingPhase = 0;
+    private int breathCount = 0;
+    private boolean isBreathingMode = false;
+    private int currentBreathingMode = 0; // 0: 4-7-8, 1: Box, 2: Coherent, 3: Custom
 
     // Meditation modes with guides
-    private final String[] modeNames = {"数息观", "随息观", "止观", "慈心观", "身体扫描"};
+    private final String[] modeNames = {"数息观", "随息观", "止观", "慈心观", "身体扫描", "呼吸法门"};
     private final String[] modeGuides = {
         "专注呼吸，数息入定。吸气数 1，呼气数 2，数到 10 重新开始。",
         "随顺呼吸，不控制不干预。只是觉察气息的进出。",
         "止息妄念，观照当下。让心自然地安住。",
         "发送慈爱给自己和他人。愿我平安，愿你平安。",
-        "从头到脚，觉察身体每个部位的感受。"
+        "从头到脚，觉察身体每个部位的感受。",
+        "跟随动画圆圈进行呼吸练习。吸气时圆圈放大，呼气时缩小。"
     };
+    
+    // Breathing patterns for 呼吸法门 mode: {inhale, hold, exhale, hold_after} in milliseconds
+    private final int[][] breathingPatterns = {
+        {4000, 7000, 8000, 0},      // 4-7-8
+        {4000, 4000, 4000, 4000},   // Box breathing
+        {5000, 0, 5000, 0},         // Coherent breathing
+        {4000, 4000, 4000, 0}       // Custom
+    };
+    private final String[] breathingModeNames = {"4-7-8 放松法", "方箱呼吸法", "共振呼吸法", "自定义呼吸法"};
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -70,6 +86,8 @@ public class MeditationFragment extends Fragment {
         customDuration = view.findViewById(R.id.customDuration);
         totalMinutes = view.findViewById(R.id.totalMinutes);
         totalSessions = view.findViewById(R.id.totalSessions);
+        breathingCircle = view.findViewById(R.id.breathingCircle);
+        breathingCircleOuter = view.findViewById(R.id.breathingCircleOuter);
         
         mode5minBtn = view.findViewById(R.id.mode5minBtn);
         mode10minBtn = view.findViewById(R.id.mode10minBtn);
@@ -117,7 +135,14 @@ public class MeditationFragment extends Fragment {
     private void startMeditation(int minutes, int modeIndex) {
         if (isRunning) return;
 
+        // Check if this is breathing mode (index 5)
+        if (modeIndex == 5) {
+            startBreathingMode(minutes);
+            return;
+        }
+
         isRunning = true;
+        isBreathingMode = false;
         totalSeconds = minutes * 60;
         secondsLeft = totalSeconds;
 
@@ -130,6 +155,12 @@ public class MeditationFragment extends Fragment {
         meditationProgress.setText("0%");
         stopMeditationBtn.setText("结束修习");
         stopMeditationBtn.setVisibility(View.VISIBLE);
+        
+        // Hide breathing circle for normal meditation
+        if (breathingCircle != null) {
+            breathingCircle.setVisibility(View.GONE);
+            breathingCircleOuter.setVisibility(View.GONE);
+        }
 
         // Disable all buttons
         setAllButtonsEnabled(false);
@@ -161,9 +192,111 @@ public class MeditationFragment extends Fragment {
 
         handler.post(timerRunnable);
     }
+    
+    /**
+     * Start breathing mode with animation
+     */
+    private void startBreathingMode(int minutes) {
+        isRunning = true;
+        isBreathingMode = true;
+        totalSeconds = minutes * 60;
+        secondsLeft = totalSeconds;
+        breathingPhase = 0;
+        breathCount = 0;
+        
+        // Show breathing circle
+        if (breathingCircle != null) {
+            breathingCircle.setVisibility(View.VISIBLE);
+            breathingCircleOuter.setVisibility(View.VISIBLE);
+        }
+        
+        meditationMode.setText("🌬️ 呼吸法门");
+        meditationGuide.setText("跟随圆圈节奏：放大时吸气，缩小时呼气");
+        meditationTimer.setText(formatTime(secondsLeft));
+        meditationProgress.setText("0 次呼吸");
+        stopMeditationBtn.setText("结束练习");
+        stopMeditationBtn.setVisibility(View.VISIBLE);
+        
+        setAllButtonsEnabled(false);
+        
+        // Start breathing animation
+        breathingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!isRunning || !isBreathingMode) return;
+                
+                int[] pattern = breathingPatterns[currentBreathingMode];
+                String[] phases = {"吸气", "屏息", "呼气", "屏息"};
+                
+                // Update instruction
+                meditationGuide.setText(phases[breathingPhase]);
+                
+                // Animate circle
+                animateBreathingCircle(breathingPhase == 0, pattern[breathingPhase]);
+                
+                // Count breaths (after inhale completes)
+                if (breathingPhase == 0) {
+                    breathCount++;
+                    meditationProgress.setText(breathCount + " 次呼吸");
+                }
+                
+                // Move to next phase
+                breathingPhase = (breathingPhase + 1) % 4;
+                
+                // Schedule next phase
+                handler.postDelayed(this, pattern[breathingPhase]);
+            }
+        };
+        
+        handler.post(breathingRunnable);
+        
+        // Also run timer for countdown
+        timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!isRunning || secondsLeft <= 0) return;
+                
+                secondsLeft--;
+                meditationTimer.setText(formatTime(secondsLeft));
+                
+                if (secondsLeft > 0) {
+                    handler.postDelayed(this, 1000);
+                } else {
+                    meditationComplete("呼吸法门");
+                }
+            }
+        };
+        
+        handler.post(timerRunnable);
+    }
+    
+    private void animateBreathingCircle(boolean expand, int duration) {
+        if (breathingCircle == null) return;
+        
+        // Scale animation
+        android.view.animation.ScaleAnimation scaleAnim = new android.view.animation.ScaleAnimation(
+            expand ? 0.7f : 1.0f, expand ? 1.0f : 0.7f,
+            expand ? 0.7f : 1.0f, expand ? 1.0f : 0.7f,
+            android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
+            android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        scaleAnim.setDuration(duration);
+        scaleAnim.setFillAfter(true);
+        breathingCircle.startAnimation(scaleAnim);
+        
+        // Alpha animation for outer circle
+        android.view.animation.AlphaAnimation alphaAnim = new android.view.animation.AlphaAnimation(
+            expand ? 0.5f : 1.0f, expand ? 1.0f : 0.5f
+        );
+        alphaAnim.setDuration(duration);
+        if (breathingCircleOuter != null) {
+            breathingCircleOuter.startAnimation(alphaAnim);
+        }
+    }
 
     private void meditationComplete(String modeName) {
         isRunning = false;
+        isBreathingMode = false;
         
         // Save stats
         int minutes = prefs.getInt("meditation_minutes", 0) + totalSeconds / 60;
@@ -179,8 +312,18 @@ public class MeditationFragment extends Fragment {
         meditationTimer.setText("完成!");
         meditationMode.setText("🙏 修习圆满");
         meditationGuide.setText("随喜赞叹你的修习功德");
-        meditationProgress.setText("100%");
+        if (breathCount > 0) {
+            meditationProgress.setText(breathCount + " 次呼吸");
+        } else {
+            meditationProgress.setText("100%");
+        }
         stopMeditationBtn.setText("关闭");
+        
+        // Hide breathing circle
+        if (breathingCircle != null) {
+            breathingCircle.setVisibility(View.GONE);
+            breathingCircleOuter.setVisibility(View.GONE);
+        }
 
         Toast.makeText(getContext(), "🙏 " + modeName + " 完成 • 随喜功德", Toast.LENGTH_LONG).show();
         
@@ -195,8 +338,13 @@ public class MeditationFragment extends Fragment {
         }
 
         isRunning = false;
+        isBreathingMode = false;
+        
         if (timerRunnable != null) {
             handler.removeCallbacks(timerRunnable);
+        }
+        if (breathingRunnable != null) {
+            handler.removeCallbacks(breathingRunnable);
         }
 
         // Save partial progress
@@ -213,8 +361,19 @@ public class MeditationFragment extends Fragment {
         meditationTimer.setText(formatTime(secondsLeft));
         meditationMode.setText("已暂停");
         meditationGuide.setText("随时可以继续修习");
-        meditationProgress.setText("");
+        if (breathCount > 0) {
+            meditationProgress.setText(breathCount + " 次呼吸");
+        } else {
+            meditationProgress.setText("");
+        }
         stopMeditationBtn.setVisibility(View.GONE);
+        
+        // Hide breathing circle
+        if (breathingCircle != null) {
+            breathingCircle.setVisibility(View.GONE);
+            breathingCircleOuter.setVisibility(View.GONE);
+        }
+        
         setAllButtonsEnabled(true);
 
         loadStats();
@@ -226,7 +385,16 @@ public class MeditationFragment extends Fragment {
         meditationGuide.setText("点击下方按钮开始修习");
         meditationProgress.setText("");
         stopMeditationBtn.setVisibility(View.GONE);
+        
+        // Hide breathing circle
+        if (breathingCircle != null) {
+            breathingCircle.setVisibility(View.GONE);
+            breathingCircleOuter.setVisibility(View.GONE);
+        }
+        
         setAllButtonsEnabled(true);
+        isBreathingMode = false;
+        breathCount = 0;
     }
 
     private void setAllButtonsEnabled(boolean enabled) {
@@ -293,5 +461,7 @@ public class MeditationFragment extends Fragment {
             stopMeditation();
         }
         handler.removeCallbacksAndMessages(null);
+        breathingRunnable = null;
+        timerRunnable = null;
     }
 }

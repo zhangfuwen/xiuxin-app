@@ -30,13 +30,19 @@
             android:textColor="#888888"
             android:layout_marginBottom="30dp" />
 
-        <!-- Progress Circle Placeholder -->
+        <!-- Progress Circle / Breathing Circle -->
         <FrameLayout
             android:layout_width="280dp"
             android:layout_height="280dp"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/meditation_circle_bg">
+            android:layout_marginBottom="24dp">
 
+            <!-- Background circle for meditation timer -->
+            <View
+                android:layout_width="280dp"
+                android:layout_height="280dp"
+                android:background="@drawable/meditation_circle_bg" />
+
+            <!-- Timer display -->
             <TextView
                 android:id="@+id/meditationTimer"
                 android:layout_width="wrap_content"
@@ -47,6 +53,23 @@
                 android:textColor="#8b7355"
                 android:textStyle="bold"
                 android:fontFamily="monospace" />
+
+            <!-- Breathing circle (hidden by default, shown for breathing mode) -->
+            <View
+                android:id="@+id/breathingCircleOuter"
+                android:layout_width="280dp"
+                android:layout_height="280dp"
+                android:layout_gravity="center"
+                android:background="@drawable/breathing_circle_outer"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/breathingCircle"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_gravity="center"
+                android:background="@drawable/breathing_circle"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/meditationProgress"
