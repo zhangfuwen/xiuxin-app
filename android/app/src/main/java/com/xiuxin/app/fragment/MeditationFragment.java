@@ -160,9 +160,11 @@ public class MeditationFragment extends Fragment {
         meditationGuide.setText(methodGuides[methodIndex]);
         startCustomBtn.setEnabled(true);
         
-        // Hide the select button after selection
+        // Keep the select button visible so user can change method
+        // Update button text to show "已选：XXX" or keep "选择"
         if (btnSelectMethodTop != null) {
-            btnSelectMethodTop.setVisibility(View.GONE);
+            btnSelectMethodTop.setText("更换");
+            btnSelectMethodTop.setVisibility(View.VISIBLE);
         }
         
         // Show breathing info if breathing mode
