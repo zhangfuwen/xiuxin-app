@@ -15,15 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.xiuxin.app.R;
-import com.xiuxin.app.adapter.MeditationMethodAdapter;
+import com.xiuxin.app.activity.MeditationMethodsActivity;
 import com.xiuxin.app.model.MeditationMethod;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class MeditationFragment extends Fragment {
@@ -31,11 +27,9 @@ public class MeditationFragment extends Fragment {
     private TextView meditationTimer, meditationMode, meditationGuide;
     private TextView meditationProgress, customDuration;
     private TextView totalMinutes, totalSessions;
-    private Button startCustomBtn, stopMeditationBtn;
+    private Button btnSelectMethod, startCustomBtn, stopMeditationBtn;
     private Button btnDecrease, btnIncrease;
     private View breathingCircle, breathingCircleOuter;
-    private RecyclerView methodsRecyclerView;
-    private MeditationMethodAdapter methodsAdapter;
     private SharedPreferences prefs;
     private Handler handler;
     private Runnable timerRunnable;
@@ -49,9 +43,9 @@ public class MeditationFragment extends Fragment {
     private boolean isBreathingMode = false;
     private int currentBreathingMode = 0; // 0: 4-7-8, 1: Box, 2: Coherent, 3: Custom
     private int selectedMethodIndex = -1; // Currently selected method index
+    private static final int REQUEST_SELECT_METHOD = 1001;
 
     // Meditation methods data
-    private final List<MeditationMethod> methods = new ArrayList<>();
     private final String[] methodNames = {"数息观", "随息观", "止观", "慈心观", "身体扫描", "呼吸法门"};
     private final String[] methodGuides = {
         "专注呼吸，数息入定。吸气数 1，呼气数 2，数到 10 重新开始。",
@@ -97,7 +91,7 @@ public class MeditationFragment extends Fragment {
         totalSessions = view.findViewById(R.id.totalSessions);
         breathingCircle = view.findViewById(R.id.breathingCircle);
         breathingCircleOuter = view.findViewById(R.id.breathingCircleOuter);
-        methodsRecyclerView = view.findViewById(R.id.methodsRecyclerView);
+        btnSelectMethod = view.findViewById(R.id.btnSelectMethod);
         startCustomBtn = view.findViewById(R.id.startCustomBtn);
         stopMeditationBtn = view.findViewById(R.id.stopMeditationBtn);
         btnDecrease = view.findViewById(R.id.btnDecrease);
@@ -105,8 +99,10 @@ public class MeditationFragment extends Fragment {
 
         handler = new Handler();
 
-        // Initialize methods list
-        initializeMethodsList();
+        // Select method button - opens methods list activity
+        btnSelectMethod.setOnClickListener(v -> {
+            MeditationMethodsActivity.startForResult(MeditationFragment.this, REQUEST_SELECT_METHOD);
+        });
 
         // Load stats
         loadStats();
@@ -137,46 +133,34 @@ public class MeditationFragment extends Fragment {
 
         updateCustomDurationDisplay();
     }
-    
-    /**
-     * Initialize meditation methods list
-     */
-    private void initializeMethodsList() {
-        methods.clear();
-        for (int i = 0; i < methodNames.length; i++) {
-            methods.add(new MeditationMethod(methodNames[i], methodGuides[i]));
-        }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         
-        methodsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        methodsAdapter = new MeditationMethodAdapter(methods, method -> {
-            selectMethod(method);
-        });
-        methodsRecyclerView.setAdapter(methodsAdapter);
+        if (requestCode == REQUEST_SELECT_METHOD && resultCode == getActivity().RESULT_OK && data != null) {
+            int methodIndex = data.getIntExtra("selected_method_index", -1);
+            if (methodIndex >= 0 && methodIndex < methodNames.length) {
+                selectMethod(methodIndex);
+            }
+        }
     }
     
     /**
      * Select a meditation method
      */
-    private void selectMethod(MeditationMethod method) {
+    private void selectMethod(int methodIndex) {
         if (isRunning) return;
         
-        // Find index
-        for (int i = 0; i < methods.size(); i++) {
-            if (methods.get(i).name.equals(method.name)) {
-                selectedMethodIndex = i;
-                meditationMode.setText("🧘 " + method.name);
-                meditationGuide.setText(method.guide);
-                
-                // Update adapter selection
-                methodsAdapter.setSelectedIndex(i);
-                methodsAdapter.notifyDataSetChanged();
-                
-                // Auto-start if breathing mode
-                if (i == 5) { // Breathing mode
-                    startMeditation(customMinutes, i);
-                }
-                break;
-            }
+        selectedMethodIndex = methodIndex;
+        meditationMode.setText("🧘 " + methodNames[methodIndex]);
+        meditationGuide.setText(methodGuides[methodIndex]);
+        startCustomBtn.setEnabled(true);
+        startCustomBtn.setBackgroundResource(R.drawable.button_primary);
+        
+        // Show breathing info if breathing mode
+        if (methodIndex == 5) {
+            meditationGuide.setText("跟随动画圆圈进行呼吸练习。吸气时圆圈放大，呼气时缩小。");
         }
     }
 
@@ -184,285 +168,179 @@ public class MeditationFragment extends Fragment {
         customDuration.setText(customMinutes + "分钟");
     }
 
-    private void startMeditation(int minutes, int modeIndex) {
+    private void startMeditation(int minutes, int methodIndex) {
         if (isRunning) return;
-
-        // Check if this is breathing mode (index 5)
-        if (selectedMethodIndex == 5) {
-            startBreathingMode(minutes);
-            return;
-        }
-
+        
         isRunning = true;
-        isBreathingMode = false;
-        totalSeconds = minutes * 60;
-        secondsLeft = totalSeconds;
-
-        String modeName = methodNames[selectedMethodIndex];
-        String guide = methodGuides[selectedMethodIndex];
-
-        meditationMode.setText("🧘 " + modeName);
-        meditationGuide.setText(guide);
-        meditationTimer.setText(formatTime(secondsLeft));
-        meditationProgress.setText("0%");
-        stopMeditationBtn.setText("结束修习");
+        isBreathingMode = (methodIndex == 5); // 呼吸法门 is index 5
+        secondsLeft = minutes * 60;
+        totalSeconds = secondsLeft;
+        
+        // Update UI
+        setControlsEnabled(false);
+        startCustomBtn.setVisibility(View.GONE);
         stopMeditationBtn.setVisibility(View.VISIBLE);
         
-        // Hide breathing circle for normal meditation
-        if (breathingCircle != null) {
-            breathingCircle.setVisibility(View.GONE);
-            breathingCircleOuter.setVisibility(View.GONE);
+        if (isBreathingMode) {
+            // Show breathing circle
+            breathingCircle.setVisibility(View.VISIBLE);
+            breathingCircleOuter.setVisibility(View.VISIBLE);
+            meditationGuide.setText("跟随圆圈呼吸：放大时吸气，缩小时呼气");
+            startBreathingAnimation();
+        } else {
+            meditationGuide.setText(methodGuides[methodIndex]);
         }
-
-        // Disable all buttons
-        setAllButtonsEnabled(false);
-
+        
+        updateTimerDisplay();
+        
+        // Start timer
         timerRunnable = new Runnable() {
             @Override
             public void run() {
-                if (!isRunning || secondsLeft <= 0) return;
-
-                secondsLeft--;
-                meditationTimer.setText(formatTime(secondsLeft));
-                
-                // Update progress
-                int progress = (int)((totalSeconds - secondsLeft) * 100.0 / totalSeconds);
-                meditationProgress.setText(progress + "%");
-
-                // Vibration at halfway point
-                if (secondsLeft == totalSeconds / 2) {
-                    vibrate(200);
-                }
-
                 if (secondsLeft > 0) {
+                    secondsLeft--;
+                    updateTimerDisplay();
                     handler.postDelayed(this, 1000);
                 } else {
-                    meditationComplete(modeName);
+                    completeMeditation();
                 }
             }
         };
-
         handler.post(timerRunnable);
+        
+        // Save start time
+        prefs.edit().putLong("meditation_start_time", System.currentTimeMillis()).apply();
     }
-    
-    /**
-     * Start breathing mode with animation
-     */
-    private void startBreathingMode(int minutes) {
-        isRunning = true;
-        isBreathingMode = true;
-        totalSeconds = minutes * 60;
-        secondsLeft = totalSeconds;
-        breathingPhase = 0;
-        breathCount = 0;
+
+    private void startBreathingAnimation() {
+        int[] pattern = breathingPatterns[currentBreathingMode];
+        int inhaleMs = pattern[0];
+        int holdMs = pattern[1];
+        int exhaleMs = pattern[2];
+        int holdAfterMs = pattern[3];
         
-        // Show breathing circle
-        if (breathingCircle != null) {
-            breathingCircle.setVisibility(View.VISIBLE);
-            breathingCircleOuter.setVisibility(View.VISIBLE);
-        }
-        
-        meditationMode.setText("🌬️ 呼吸法门");
-        meditationGuide.setText("跟随圆圈节奏：放大时吸气，缩小时呼气");
-        meditationTimer.setText(formatTime(secondsLeft));
-        meditationProgress.setText("0 次呼吸");
-        stopMeditationBtn.setText("结束练习");
-        stopMeditationBtn.setVisibility(View.VISIBLE);
-        
-        setAllButtonsEnabled(false);
-        
-        // Start breathing animation
         breathingRunnable = new Runnable() {
             @Override
             public void run() {
                 if (!isRunning || !isBreathingMode) return;
                 
-                int[] pattern = breathingPatterns[currentBreathingMode];
-                String[] phases = {"吸气", "屏息", "呼气", "屏息"};
-                
-                // Update instruction
-                meditationGuide.setText(phases[breathingPhase]);
-                
-                // Animate circle
-                animateBreathingCircle(breathingPhase == 0, pattern[breathingPhase]);
-                
-                // Count breaths (after inhale completes)
-                if (breathingPhase == 0) {
-                    breathCount++;
-                    meditationProgress.setText(breathCount + " 次呼吸");
-                }
-                
-                // Move to next phase
-                breathingPhase = (breathingPhase + 1) % 4;
-                
-                // Schedule next phase
-                handler.postDelayed(this, pattern[breathingPhase]);
+                // Inhale - expand
+                breathingCircle.animate().scaleX(1.3f).scaleY(1.3f).setDuration(inhaleMs).withEndAction(() -> {
+                    if (!isRunning) return;
+                    
+                    // Hold after inhale
+                    if (holdMs > 0) {
+                        handler.postDelayed(() -> {
+                            if (!isRunning) return;
+                            
+                            // Exhale - contract
+                            breathingCircle.animate().scaleX(1.0f).scaleY(1.0f).setDuration(exhaleMs).withEndAction(() -> {
+                                if (!isRunning) return;
+                                
+                                // Hold after exhale
+                                if (holdAfterMs > 0) {
+                                    handler.postDelayed(this, holdAfterMs);
+                                } else {
+                                    handler.postDelayed(this, 100); // Small delay before next cycle
+                                }
+                            }).start();
+                        }, holdMs);
+                    } else {
+                        // Exhale - contract
+                        breathingCircle.animate().scaleX(1.0f).scaleY(1.0f).setDuration(exhaleMs).withEndAction(() -> {
+                            if (!isRunning) return;
+                            
+                            // Hold after exhale
+                            if (holdAfterMs > 0) {
+                                handler.postDelayed(this, holdAfterMs);
+                            } else {
+                                handler.postDelayed(this, 100);
+                            }
+                        }).start();
+                    }
+                }).start();
             }
         };
-        
         handler.post(breathingRunnable);
-        
-        // Also run timer for countdown
-        timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (!isRunning || secondsLeft <= 0) return;
-                
-                secondsLeft--;
-                meditationTimer.setText(formatTime(secondsLeft));
-                
-                if (secondsLeft > 0) {
-                    handler.postDelayed(this, 1000);
-                } else {
-                    meditationComplete("呼吸法门");
-                }
-            }
-        };
-        
-        handler.post(timerRunnable);
-    }
-    
-    private void animateBreathingCircle(boolean expand, int duration) {
-        if (breathingCircle == null) return;
-        
-        // Scale animation
-        android.view.animation.ScaleAnimation scaleAnim = new android.view.animation.ScaleAnimation(
-            expand ? 0.7f : 1.0f, expand ? 1.0f : 0.7f,
-            expand ? 0.7f : 1.0f, expand ? 1.0f : 0.7f,
-            android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
-            android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f
-        );
-        scaleAnim.setDuration(duration);
-        scaleAnim.setFillAfter(true);
-        breathingCircle.startAnimation(scaleAnim);
-        
-        // Alpha animation for outer circle
-        android.view.animation.AlphaAnimation alphaAnim = new android.view.animation.AlphaAnimation(
-            expand ? 0.5f : 1.0f, expand ? 1.0f : 0.5f
-        );
-        alphaAnim.setDuration(duration);
-        if (breathingCircleOuter != null) {
-            breathingCircleOuter.startAnimation(alphaAnim);
-        }
     }
 
-    private void meditationComplete(String modeName) {
+    private void updateTimerDisplay() {
+        int mins = secondsLeft / 60;
+        int secs = secondsLeft % 60;
+        meditationTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", mins, secs));
+        
+        // Update progress
+        int elapsed = totalSeconds - secondsLeft;
+        meditationProgress.setText("已修习：" + elapsed + "秒");
+    }
+
+    private void completeMeditation() {
         isRunning = false;
         isBreathingMode = false;
         
-        // Save stats
-        int minutes = prefs.getInt("meditation_minutes", 0) + totalSeconds / 60;
+        // Stop animations
+        if (breathingRunnable != null) {
+            handler.removeCallbacks(breathingRunnable);
+        }
+        breathingCircle.setVisibility(View.GONE);
+        breathingCircleOuter.setVisibility(View.GONE);
+        
+        // Update stats
+        int minutes = prefs.getInt("meditation_minutes", 0) + customMinutes;
         int sessions = prefs.getInt("meditation_sessions", 0) + 1;
         prefs.edit()
             .putInt("meditation_minutes", minutes)
             .putInt("meditation_sessions", sessions)
+            .remove("meditation_start_time")
             .apply();
-
-        // Vibration completion
-        vibrate(new long[]{0, 200, 100, 200, 100, 300}, -1);
-
-        meditationTimer.setText("完成!");
-        meditationMode.setText("🙏 修习圆满");
-        meditationGuide.setText("随喜赞叹你的修习功德");
-        if (breathCount > 0) {
-            meditationProgress.setText(breathCount + " 次呼吸");
-        } else {
-            meditationProgress.setText("100%");
-        }
-        stopMeditationBtn.setText("关闭");
-        
-        // Hide breathing circle
-        if (breathingCircle != null) {
-            breathingCircle.setVisibility(View.GONE);
-            breathingCircleOuter.setVisibility(View.GONE);
-        }
-
-        Toast.makeText(getContext(), "🙏 " + modeName + " 完成 • 随喜功德", Toast.LENGTH_LONG).show();
         
         loadStats();
+        
+        // Show completion message
+        Toast.makeText(getContext(), "修习完成！🙏", Toast.LENGTH_LONG).show();
+        
+        // Reset UI
+        setControlsEnabled(true);
+        startCustomBtn.setVisibility(View.VISIBLE);
+        stopMeditationBtn.setVisibility(View.GONE);
+        meditationTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", customMinutes, 0));
+        meditationGuide.setText("修习完成，休息片刻");
     }
 
     private void stopMeditation() {
-        if (!isRunning && stopMeditationBtn.getText().toString().equals("关闭")) {
-            // Reset after completion
-            resetUI();
-            return;
-        }
-
+        if (!isRunning) return;
+        
         isRunning = false;
         isBreathingMode = false;
         
+        // Stop animations
         if (timerRunnable != null) {
             handler.removeCallbacks(timerRunnable);
         }
         if (breathingRunnable != null) {
             handler.removeCallbacks(breathingRunnable);
         }
-
-        // Save partial progress
-        int completedSeconds = totalSeconds - secondsLeft;
-        if (completedSeconds > 30) { // Only save if more than 30 seconds
-            int minutes = prefs.getInt("meditation_minutes", 0) + completedSeconds / 60;
-            int sessions = prefs.getInt("meditation_sessions", 0) + 1;
-            prefs.edit()
-                .putInt("meditation_minutes", minutes)
-                .putInt("meditation_sessions", sessions)
-                .apply();
-        }
-
-        meditationTimer.setText(formatTime(secondsLeft));
-        meditationMode.setText("已暂停");
-        meditationGuide.setText("随时可以继续修习");
-        if (breathCount > 0) {
-            meditationProgress.setText(breathCount + " 次呼吸");
-        } else {
-            meditationProgress.setText("");
-        }
+        breathingCircle.setVisibility(View.GONE);
+        breathingCircleOuter.setVisibility(View.GONE);
+        
+        // Clear start time
+        prefs.edit().remove("meditation_start_time").apply();
+        
+        // Reset UI
+        setControlsEnabled(true);
+        startCustomBtn.setVisibility(View.VISIBLE);
         stopMeditationBtn.setVisibility(View.GONE);
-        
-        // Hide breathing circle
-        if (breathingCircle != null) {
-            breathingCircle.setVisibility(View.GONE);
-            breathingCircleOuter.setVisibility(View.GONE);
-        }
-        
-        setAllButtonsEnabled(true);
-
-        loadStats();
+        meditationTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", customMinutes, 0));
+        meditationGuide.setText("修习已停止");
     }
 
-    private void resetUI() {
-        meditationTimer.setText("05:00");
-        meditationMode.setText("选择冥想模式");
-        meditationGuide.setText("点击下方按钮开始修习");
-        meditationProgress.setText("");
-        stopMeditationBtn.setVisibility(View.GONE);
-        
-        // Hide breathing circle
-        if (breathingCircle != null) {
-            breathingCircle.setVisibility(View.GONE);
-            breathingCircleOuter.setVisibility(View.GONE);
-        }
-        
-        setAllButtonsEnabled(true);
-        isBreathingMode = false;
-        breathCount = 0;
-    }
-
-    private void setAllButtonsEnabled(boolean enabled) {
-        startCustomBtn.setEnabled(enabled);
+    private void setControlsEnabled(boolean enabled) {
         btnDecrease.setEnabled(enabled);
         btnIncrease.setEnabled(enabled);
         
         startCustomBtn.setAlpha(enabled ? 1.0f : 0.5f);
         btnDecrease.setAlpha(enabled ? 1.0f : 0.5f);
         btnIncrease.setAlpha(enabled ? 1.0f : 0.5f);
-        
-        // Disable methods list during meditation
-        if (methodsRecyclerView != null) {
-            methodsRecyclerView.setEnabled(enabled);
-            methodsRecyclerView.setAlpha(enabled ? 1.0f : 0.5f);
-        }
     }
 
     private void loadStats() {
@@ -483,37 +361,28 @@ public class MeditationFragment extends Fragment {
         }
     }
 
-    private void vibrate(long[] pattern, int repeat) {
-        try {
-            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-            if (vibrator != null && vibrator.hasVibrator()) {
-                vibrator.vibrate(pattern, repeat);
-            }
-        } catch (Exception e) {
-            // Ignore vibration errors
-        }
-    }
-
-    private String formatTime(int seconds) {
-        int mins = seconds / 60;
-        int secs = seconds % 60;
-        return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        loadStats();
+        // Check if meditation was interrupted
+        long startTime = prefs.getLong("meditation_start_time", 0);
+        if (startTime > 0) {
+            // Resume or clean up interrupted session
+            prefs.edit().remove("meditation_start_time").apply();
+        }
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (isRunning) {
-            stopMeditation();
+    public void onPause() {
+        super.onPause();
+        // Don't stop meditation on pause, let it continue in background
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
         }
-        handler.removeCallbacksAndMessages(null);
-        breathingRunnable = null;
-        timerRunnable = null;
     }
 }

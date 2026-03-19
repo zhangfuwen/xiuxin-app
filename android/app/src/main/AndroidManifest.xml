@@ -35,6 +35,11 @@
             android:exported="false"
             android:theme="@style/Theme.Xiuxin"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activity.MeditationMethodsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Xiuxin" />
     </application>
 
 </manifest>

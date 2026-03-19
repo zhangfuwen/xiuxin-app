@@ -5,271 +5,223 @@
     android:orientation="vertical"
     android:background="#f5f0eb">
 
-    <!-- Top Section: Timer + Guide (Fixed height, scrollable content inside) -->
-    <ScrollView
+    <!-- Top Section: Timer + Guide -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Selected Method Display -->
+        <TextView
+            android:id="@+id/meditationMode"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:gravity="center_horizontal">
+            android:text="🧘 选择法门开始修习"
+            android:textSize="20sp"
+            android:textColor="#5a4a42"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
 
-            <!-- Header -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🧘 冥想修习"
-                android:textSize="26sp"
-                android:textColor="#5a4a42"
-                android:textStyle="bold"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp" />
+        <!-- Timer -->
+        <TextView
+            android:id="@+id/meditationTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15:00"
+            android:textSize="64sp"
+            android:textColor="#8b7355"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginBottom="24dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="静心凝神，观照当下"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="20dp" />
+        <!-- Breathing Circle (for 呼吸法门 mode) -->
+        <FrameLayout
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone">
 
-            <!-- Progress Circle / Breathing Circle -->
-            <FrameLayout
-                android:layout_width="280dp"
-                android:layout_height="280dp"
-                android:layout_marginBottom="20dp">
-
-                <!-- Background circle for meditation timer -->
-                <View
-                    android:layout_width="280dp"
-                    android:layout_height="280dp"
-                    android:background="@drawable/meditation_circle_bg" />
-
-                <!-- Timer display -->
-                <TextView
-                    android:id="@+id/meditationTimer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="05:00"
-                    android:textSize="56sp"
-                    android:textColor="#8b7355"
-                    android:textStyle="bold"
-                    android:fontFamily="monospace" />
-
-                <!-- Breathing circle (hidden by default, shown for breathing mode) -->
-                <View
-                    android:id="@+id/breathingCircleOuter"
-                    android:layout_width="280dp"
-                    android:layout_height="280dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/breathing_circle_outer"
-                    android:visibility="gone" />
-
-                <View
-                    android:id="@+id/breathingCircle"
-                    android:layout_width="180dp"
-                    android:layout_height="180dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/breathing_circle"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/meditationProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="40dp"
-                    android:text="0%"
-                    android:textSize="16sp"
-                    android:textColor="#aaa" />
-            </FrameLayout>
-
-            <!-- Selected Method Display -->
-            <TextView
-                android:id="@+id/meditationMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="选择冥想法门"
-                android:textSize="20sp"
-                android:textColor="#666666"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/meditationGuide"
+            <View
+                android:id="@+id/breathingCircleOuter"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="请从下方列表选择一个法门开始修习"
-                android:textSize="15sp"
-                android:textColor="#999999"
-                android:gravity="center"
-                android:layout_marginBottom="20dp"
-                android:paddingHorizontal="20dp" />
-
-            <!-- Duration Selection -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="修习时长"
-                android:textSize="14sp"
-                android:textColor="#8b7355"
-                android:textStyle="bold"
-                android:layout_gravity="start"
-                android:layout_marginBottom="12dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <Button
-                    android:id="@+id/btnDecrease"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="-"
-                    android:textSize="20sp"
-                    android:background="@drawable/button_secondary"
-                    android:textColor="#8b7355" />
-
-                <TextView
-                    android:id="@+id/customDuration"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="15 分钟"
-                    android:textSize="18sp"
-                    android:textColor="#5a4a42"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/btnIncrease"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="+"
-                    android:textSize="20sp"
-                    android:background="@drawable/button_secondary"
-                    android:textColor="#8b7355" />
-            </LinearLayout>
-
-            <!-- Start/Stop Button -->
-            <Button
-                android:id="@+id/startCustomBtn"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="开始修习"
-                android:textSize="18sp"
-                android:background="@drawable/button_primary"
-                android:textColor="#ffffff"
-                android:layout_marginBottom="16dp" />
-
-            <Button
-                android:id="@+id/stopMeditationBtn"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="结束修习"
-                android:textSize="18sp"
-                android:background="@drawable/button_secondary"
-                android:textColor="#8b7355"
+                android:layout_height="match_parent"
+                android:background="@drawable/breathing_circle_outer"
                 android:visibility="gone" />
 
-            <!-- Stats -->
-            <LinearLayout
+            <View
+                android:id="@+id/breathingCircle"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/breathing_circle"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Guide Text -->
+        <TextView
+            android:id="@+id/meditationGuide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="请从下方列表选择一个法门开始修习"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Duration Controls -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btnDecrease"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="-"
+                android:textSize="20sp"
+                android:background="@drawable/button_circle"
+                android:textColor="#8b7355" />
+
+            <TextView
+                android:id="@+id/customDuration"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@drawable/stats_card"
-                android:layout_marginTop="20dp">
+                android:text="15 分钟"
+                android:textSize="18sp"
+                android:textColor="#5a4a42"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="16dp" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
+            <Button
+                android:id="@+id/btnIncrease"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="+"
+                android:textSize="20sp"
+                android:background="@drawable/button_circle"
+                android:textColor="#8b7355" />
+        </LinearLayout>
+
+        <!-- Progress Stats -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/meditationProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="本次修习"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:layout_marginEnd="16dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/totalMinutes"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:text="0"
+                    android:textSize="24sp"
+                    android:textColor="#8b7355"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/totalMinutes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="24sp"
-                        android:textColor="#8b7355"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="总分钟"
-                        android:textSize="12sp"
-                        android:textColor="#999" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#eee" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/totalSessions"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="24sp"
-                        android:textColor="#8b7355"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="修习次数"
-                        android:textSize="12sp"
-                        android:textColor="#999" />
-                </LinearLayout>
+                    android:text="总分钟"
+                    android:textSize="12sp"
+                    android:textColor="#999" />
             </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
+            <View
+                android:layout_width="1dp"
+                android:layout_height="40dp"
+                android:background="#ddd"
+                android:layout_marginHorizontal="16dp" />
 
-    <!-- Bottom Section: Methods List (Fixed height, scrollable) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/totalSessions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="24sp"
+                    android:textColor="#8b7355"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="总次数"
+                    android:textSize="12sp"
+                    android:textColor="#999" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Bottom Section: Method Selection Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#ffffff"
-        android:padding="16dp"
-        android:elevation="4dp">
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- Select Method Button -->
+        <Button
+            android:id="@+id/btnSelectMethod"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
             android:text="📚 选择法门"
-            android:textSize="16sp"
-            android:textColor="#5a4a42"
-            android:textStyle="bold"
+            android:textSize="18sp"
+            android:background="@drawable/button_primary"
+            android:textColor="#ffffff"
             android:layout_marginBottom="12dp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/methodsRecyclerView"
+        <!-- Start Button -->
+        <Button
+            android:id="@+id/startCustomBtn"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:nestedScrollingEnabled="false" />
+            android:layout_height="56dp"
+            android:text="开始修习"
+            android:textSize="18sp"
+            android:background="@drawable/button_secondary"
+            android:textColor="#8b7355"
+            android:enabled="false"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Stop Button (hidden initially) -->
+        <Button
+            android:id="@+id/stopMeditationBtn"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="结束修习"
+            android:textSize="18sp"
+            android:background="@drawable/button_danger"
+            android:textColor="#ffffff"
+            android:visibility="gone" />
 
     </LinearLayout>
 

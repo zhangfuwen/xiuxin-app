@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_marginHorizontal="4dp">
+
+    <TextView
+        android:id="@+id/methodName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="数息观"
+        android:textSize="14sp"
+        android:textColor="#5a4a42"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:background="@drawable/method_card"
+        android:minWidth="80dp"
+        android:gravity="center" />
+
+</LinearLayout>
