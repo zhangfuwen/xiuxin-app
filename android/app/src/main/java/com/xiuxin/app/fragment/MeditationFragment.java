@@ -27,7 +27,7 @@ public class MeditationFragment extends Fragment {
     private TextView meditationTimer, meditationMode, meditationGuide;
     private TextView meditationProgress, customDuration;
     private TextView totalMinutes, totalSessions;
-    private Button btnSelectMethod, btnSelectMethodTop, startCustomBtn, stopMeditationBtn;
+    private Button btnSelectMethodTop, startCustomBtn, stopMeditationBtn;
     private Button btnDecrease, btnIncrease;
     private View breathingCircle, breathingCircleOuter;
     private SharedPreferences prefs;
@@ -91,7 +91,6 @@ public class MeditationFragment extends Fragment {
         totalSessions = view.findViewById(R.id.totalSessions);
         breathingCircle = view.findViewById(R.id.breathingCircle);
         breathingCircleOuter = view.findViewById(R.id.breathingCircleOuter);
-        btnSelectMethod = view.findViewById(R.id.btnSelectMethod);
         btnSelectMethodTop = view.findViewById(R.id.btnSelectMethodTop);
         startCustomBtn = view.findViewById(R.id.startCustomBtn);
         stopMeditationBtn = view.findViewById(R.id.stopMeditationBtn);
@@ -100,11 +99,10 @@ public class MeditationFragment extends Fragment {
 
         handler = new Handler();
 
-        // Select method buttons - both trigger the same action
+        // Select method button - triggers method selection activity
         View.OnClickListener selectMethodListener = v -> {
             MeditationMethodsActivity.startForResult(MeditationFragment.this, REQUEST_SELECT_METHOD);
         };
-        btnSelectMethod.setOnClickListener(selectMethodListener);
         if (btnSelectMethodTop != null) {
             btnSelectMethodTop.setOnClickListener(selectMethodListener);
         }
