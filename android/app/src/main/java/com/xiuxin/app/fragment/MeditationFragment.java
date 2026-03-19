@@ -27,7 +27,7 @@ public class MeditationFragment extends Fragment {
     private TextView meditationTimer, meditationMode, meditationGuide;
     private TextView meditationProgress, customDuration;
     private TextView totalMinutes, totalSessions;
-    private Button btnSelectMethod, startCustomBtn, stopMeditationBtn;
+    private Button btnSelectMethod, btnSelectMethodTop, startCustomBtn, stopMeditationBtn;
     private Button btnDecrease, btnIncrease;
     private View breathingCircle, breathingCircleOuter;
     private SharedPreferences prefs;
@@ -92,6 +92,7 @@ public class MeditationFragment extends Fragment {
         breathingCircle = view.findViewById(R.id.breathingCircle);
         breathingCircleOuter = view.findViewById(R.id.breathingCircleOuter);
         btnSelectMethod = view.findViewById(R.id.btnSelectMethod);
+        btnSelectMethodTop = view.findViewById(R.id.btnSelectMethodTop);
         startCustomBtn = view.findViewById(R.id.startCustomBtn);
         stopMeditationBtn = view.findViewById(R.id.stopMeditationBtn);
         btnDecrease = view.findViewById(R.id.btnDecrease);
@@ -99,10 +100,14 @@ public class MeditationFragment extends Fragment {
 
         handler = new Handler();
 
-        // Select method button - opens methods list activity
-        btnSelectMethod.setOnClickListener(v -> {
+        // Select method buttons - both trigger the same action
+        View.OnClickListener selectMethodListener = v -> {
             MeditationMethodsActivity.startForResult(MeditationFragment.this, REQUEST_SELECT_METHOD);
-        });
+        };
+        btnSelectMethod.setOnClickListener(selectMethodListener);
+        if (btnSelectMethodTop != null) {
+            btnSelectMethodTop.setOnClickListener(selectMethodListener);
+        }
 
         // Load stats
         loadStats();
@@ -156,7 +161,11 @@ public class MeditationFragment extends Fragment {
         meditationMode.setText("🧘 " + methodNames[methodIndex]);
         meditationGuide.setText(methodGuides[methodIndex]);
         startCustomBtn.setEnabled(true);
-        startCustomBtn.setBackgroundResource(R.drawable.button_primary);
+        
+        // Hide the select button after selection
+        if (btnSelectMethodTop != null) {
+            btnSelectMethodTop.setVisibility(View.GONE);
+        }
         
         // Show breathing info if breathing mode
         if (methodIndex == 5) {
@@ -341,6 +350,11 @@ public class MeditationFragment extends Fragment {
         startCustomBtn.setAlpha(enabled ? 1.0f : 0.5f);
         btnDecrease.setAlpha(enabled ? 1.0f : 0.5f);
         btnIncrease.setAlpha(enabled ? 1.0f : 0.5f);
+        
+        // Also update top select button if visible
+        if (btnSelectMethodTop != null && selectedMethodIndex < 0) {
+            btnSelectMethodTop.setAlpha(enabled ? 1.0f : 0.5f);
+        }
     }
 
     private void loadStats() {

@@ -14,17 +14,6 @@
         android:padding="24dp"
         android:gravity="center_horizontal">
 
-        <!-- Selected Method Display -->
-        <TextView
-            android:id="@+id/meditationMode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🧘 选择法门开始修习"
-            android:textSize="20sp"
-            android:textColor="#5a4a42"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
-
         <!-- Timer -->
         <TextView
             android:id="@+id/meditationTimer"
@@ -35,7 +24,36 @@
             android:textColor="#8b7355"
             android:textStyle="bold"
             android:fontFamily="sans-serif-light"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="16dp" />
+
+        <!-- Selected Method Display + Select Button -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/meditationMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧘 选择法门开始修习"
+                android:textSize="18sp"
+                android:textColor="#5a4a42"
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp" />
+
+            <Button
+                android:id="@+id/btnSelectMethodTop"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="选择"
+                android:textSize="14sp"
+                android:background="@drawable/button_circle"
+                android:textColor="#8b7355"
+                android:paddingHorizontal="16dp" />
+        </LinearLayout>
 
         <!-- Breathing Circle (for 呼吸法门 mode) -->
         <FrameLayout
@@ -72,41 +90,45 @@
             android:paddingHorizontal="16dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Duration Controls -->
+        <!-- Duration Controls with better contrast -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
+            android:background="@drawable/method_card"
+            android:padding="8dp"
             android:layout_marginBottom="16dp">
 
             <Button
                 android:id="@+id/btnDecrease"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:text="-"
-                android:textSize="20sp"
+                android:textSize="18sp"
+                android:textStyle="bold"
                 android:background="@drawable/button_circle"
-                android:textColor="#8b7355" />
+                android:textColor="#ffffff" />
 
             <TextView
                 android:id="@+id/customDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="15 分钟"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textColor="#5a4a42"
                 android:textStyle="bold"
-                android:layout_marginHorizontal="16dp" />
+                android:layout_marginHorizontal="20dp" />
 
             <Button
                 android:id="@+id/btnIncrease"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:text="+"
-                android:textSize="20sp"
+                android:textSize="18sp"
+                android:textStyle="bold"
                 android:background="@drawable/button_circle"
-                android:textColor="#8b7355" />
+                android:textColor="#ffffff" />
         </LinearLayout>
 
         <!-- Progress Stats -->
@@ -180,7 +202,7 @@
 
     </LinearLayout>
 
-    <!-- Bottom Section: Method Selection Button -->
+    <!-- Bottom Section: Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -189,17 +211,6 @@
         android:elevation="8dp"
         android:padding="16dp">
 
-        <!-- Select Method Button -->
-        <Button
-            android:id="@+id/btnSelectMethod"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="📚 选择法门"
-            android:textSize="18sp"
-            android:background="@drawable/button_primary"
-            android:textColor="#ffffff"
-            android:layout_marginBottom="12dp" />
-
         <!-- Start Button -->
         <Button
             android:id="@+id/startCustomBtn"
@@ -207,8 +218,9 @@
             android:layout_height="56dp"
             android:text="开始修习"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:background="@drawable/button_secondary"
-            android:textColor="#8b7355"
+            android:textColor="#ffffff"
             android:enabled="false"
             android:layout_marginBottom="12dp" />
 
@@ -219,6 +231,7 @@
             android:layout_height="56dp"
             android:text="结束修习"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:background="@drawable/button_danger"
             android:textColor="#ffffff"
             android:visibility="gone" />
