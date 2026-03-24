@@ -1121,7 +1121,7 @@
         }
 
         // 计时器
-        function setDuration(minutes) {
+        function setDuration(minutes, triggerElement = null) {
             stopTimer();
             timerDuration = minutes * 60;
             timerRemaining = timerDuration;
@@ -1129,8 +1129,10 @@
             
             document.querySelectorAll('.duration-btn').forEach(btn => {
                 btn.classList.remove('active');
+                if (parseInt(btn.textContent) === minutes) {
+                    btn.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
         }
 
         function selectMethod(el, method) {
@@ -1145,15 +1147,7 @@
             // 自动设置法门推荐时长
             const guide = methodGuides[method];
             if (guide && guide.recommendedMinutes) {
-                setDuration(guide.recommendedMinutes);
-                
-                // 更新按钮激活状态
-                document.querySelectorAll('.duration-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (parseInt(btn.textContent) === guide.recommendedMinutes) {
-                        btn.classList.add('active');
-                    }
-                });
+                setDuration(guide.recommendedMinutes, el);
             }
         }
 

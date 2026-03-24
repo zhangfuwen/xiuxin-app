@@ -48,7 +48,7 @@ public class MeditationMethodsActivity extends AppCompatActivity {
         "放松身心，调节呼吸节奏"
     };
     private static final String[] METHOD_DIFFICULTIES = {"入门", "入门", "进阶", "入门", "入门", "入门"};
-    private static final int[] METHOD_DURATIONS = {10, 15, 20, 15, 20, 10};
+    public static final int[] METHOD_DURATIONS = {10, 15, 20, 15, 20, 10};
 
     private LinearLayout methodsContainer;
     private TextView emptyText;
