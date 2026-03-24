@@ -13,9 +13,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f0eb 0%, #e8e4dc 100%);
+            background: linear-gradient(135deg, #f8f5f2 0%, #efe9e3 100%);
             min-height: 100vh;
-            color: #333;
+            color: #4a4a4a;
+            line-height: 1.6;
         }
 
         .container {
@@ -101,34 +102,41 @@
         /* 功能卡片 */
         .feature-card {
             background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .feature-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+            border-color: rgba(139,115,85,0.3);
         }
 
         .feature-card h3 {
-            font-size: 1.2rem;
-            font-weight: 500;
+            font-size: 1.3rem;
+            font-weight: 600;
             color: #5a4a42;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .feature-card p {
-            font-size: 0.9rem;
-            color: #888;
+            font-size: 0.95rem;
+            color: #777;
+            line-height: 1.5;
         }
 
         .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
+            font-size: 2.2rem;
+            margin-bottom: 14px;
+            display: block;
         }
 
         /* 呼吸练习界面 */
@@ -677,6 +685,7 @@
                 icon: '🧘',
                 title: '数息观',
                 source: '佛教 · 入门',
+                recommendedMinutes: 10,
                 content: `
                     <strong>【练习方法】</strong><br>
                     1. 自然呼吸，不要刻意控制<br>
@@ -694,6 +703,7 @@
                 icon: '☯️',
                 title: '守窍',
                 source: '道教 · 初级',
+                recommendedMinutes: 20,
                 content: `
                     <strong>【练习方法】</strong><br>
                     1. 轻闭双眼，放松全身<br>
@@ -711,6 +721,7 @@
                 icon: '📖',
                 title: '静坐',
                 source: '儒家 · 入门',
+                recommendedMinutes: 30,
                 content: `
                     <strong>【练习方法】</strong><br>
                     1. 正身端坐，脊背挺直<br>
@@ -1110,7 +1121,7 @@
         }
 
         // 计时器
-        function setDuration(minutes) {
+        function setDuration(minutes, triggerElement = null) {
             stopTimer();
             timerDuration = minutes * 60;
             timerRemaining = timerDuration;
@@ -1118,8 +1129,10 @@
             
             document.querySelectorAll('.duration-btn').forEach(btn => {
                 btn.classList.remove('active');
+                if (parseInt(btn.textContent) === minutes) {
+                    btn.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
         }
 
         function selectMethod(el, method) {
@@ -1130,6 +1143,12 @@
             });
             el.classList.add('active');
             document.getElementById('timerMethod').textContent = method;
+            
+            // 自动设置法门推荐时长
+            const guide = methodGuides[method];
+            if (guide && guide.recommendedMinutes) {
+                setDuration(guide.recommendedMinutes, el);
+            }
         }
 
         // 显示法门要领
